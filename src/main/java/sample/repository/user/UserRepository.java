@@ -5,12 +5,14 @@ import java.util.Optional;
 
 import org.seasar.doma.Dao;
 import org.seasar.doma.Select;
+import org.seasar.doma.boot.ConfigAutowireable;
 
 import sample.entity.User;
 import sample.query.user.UserSearchParam;
 
 /** ユーザーDAO */
 @Dao
+@ConfigAutowireable
 public interface UserRepository {
     /**
      * ユーザーIDで取得

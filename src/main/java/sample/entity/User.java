@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.seasar.doma.Entity;
 import org.seasar.doma.GeneratedValue;
 import org.seasar.doma.GenerationType;
+import org.seasar.doma.Id;
 import org.seasar.doma.jdbc.entity.NamingType;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -16,6 +17,7 @@ import lombok.Data;
 @Table(name = "users")
 public class User {
     /** ID */
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

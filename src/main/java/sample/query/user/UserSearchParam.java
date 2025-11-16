@@ -17,5 +17,5 @@ public class UserSearchParam {
     private String email;
 
     /** 権限 */
-    private int role;
+    private Integer role;
 }

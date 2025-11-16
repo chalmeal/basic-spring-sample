@@ -9,4 +9,6 @@ SELECT
 FROM
   users
 WHERE
-  user_id = /* param.user_id */
+  /*%if userId != null*/
+  user_id = /* userId */'dummy'
+  /*%end*/
