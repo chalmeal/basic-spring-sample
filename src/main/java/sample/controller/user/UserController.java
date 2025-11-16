@@ -43,17 +43,22 @@ public class UserController {
     /**
      * ユーザー検索
      * 
-     * @param request 検索リクエスト
+     * @param userId     ユーザーID
+     * @param username   ユーザー名
+     * @param email      メールアドレス
+     * @param role       権限
+     * @param pageSize   ページサイズ
+     * @param pageNumber ページ番号
      * @return ユーザー一覧
      */
     @GetMapping
     public ResponseEntity<Pagination<UserSearchResponse>> search(
-            @RequestParam(required = false) String userId,
-            @RequestParam(required = false) String username,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) Integer role,
-            @RequestParam(required = false, defaultValue = "30") Integer pageSize,
-            @RequestParam(required = false, defaultValue = "1") Integer pageNumber) {
+            @RequestParam(name = "user_id", required = false) String userId,
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "role", required = false) Integer role,
+            @RequestParam(name = "page_size", required = true, defaultValue = "30") Integer pageSize,
+            @RequestParam(name = "page_number", required = true, defaultValue = "1") Integer pageNumber) {
         // 検索リクエストパラメータ
         UserSearchRequest request = UserSearchRequest.builder()
                 .userId(userId)

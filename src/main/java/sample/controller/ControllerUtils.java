@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.extern.slf4j.Slf4j;
+import sample.dto.response.ErrorResponse;
 
 /** コントローラー共通ユーティリティ */
 @ControllerAdvice
@@ -42,13 +43,9 @@ public class ControllerUtils {
      * @return 400エラーレスポンス
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Map<String, String>> handleMissingParams(MissingServletRequestParameterException ex) {
-        String name = ex.getParameterName();
-        Map<String, String> errors = new HashMap<>();
-        errors.put(name, String.format("%s は必須です。", name));
-        log.error(ex.getMessage(), ex);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(String.format("%s は必須です。", ex.getParameterName())));
     }
 
     /**
@@ -58,12 +55,9 @@ public class ControllerUtils {
      * @return 404エラーレスポンス
      */
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<Map<String, String>> handleNoResourceFoundException(NoResourceFoundException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "リソースが見つかりません。");
-        log.error(ex.getMessage(), ex);
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("リソースが見つかりません。"));
     }
 
     /**
@@ -73,12 +67,10 @@ public class ControllerUtils {
      * @return 500エラーレスポンス
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "サーバーエラーが発生しました。");
+    public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         log.error(ex.getMessage(), ex);
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("サーバーエラーが発生しました。"));
     }
 
 }
