@@ -1,13 +1,13 @@
-package sample.dto.user;
+package sample.dto.response.user;
 
 import java.time.LocalDateTime;
 
-import lombok.Data;
+import lombok.Getter;
 import sample.entity.User;
 
 /** ユーザー取得レスポンス */
-@Data
-public class UserGetDto {
+@Getter
+public class UserGetResponse {
     /** ID */
     private Long id;
 
@@ -32,7 +32,7 @@ public class UserGetDto {
     /** 削除日時 */
     private LocalDateTime deletedAt;
 
-    public UserGetDto(User user) {
+    public UserGetResponse(User user) {
         this.id = user.getId();
         this.userId = user.getUserId();
         this.name = user.getUsername();

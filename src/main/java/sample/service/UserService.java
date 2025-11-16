@@ -1,13 +1,15 @@
 package sample.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import sample.dto.user.UserGetDto;
-import sample.dto.user.UserSearchDto;
+import sample.dto.request.user.UserSearchRequest;
+import sample.dto.response.user.UserGetResponse;
+import sample.dto.response.user.UserSearchResponse;
 import sample.entity.User;
 import sample.query.user.UserSearchParam;
 import sample.repository.user.UserRepository;
@@ -27,11 +29,12 @@ public class UserService {
      * @return ユーザー情報
      */
     @Transactional(readOnly = true)
-    public UserGetDto getByUserId(String userId) throws NotFoundException {
+    public UserGetResponse getByUserId(String userId) throws NotFoundException {
+        // ユーザー取得
         User user = userRepository.getByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("ユーザーが見つかりませんでした。", userId));
 
-        return new UserGetDto(user);
+        return new UserGetResponse(user);
     }
 
     /**
@@ -41,15 +44,23 @@ public class UserService {
      * @return ユーザー一覧
      */
     @Transactional(readOnly = true)
-    public List<User> search(UserSearchDto dto) {
+    public List<UserSearchResponse> search(UserSearchRequest request) {
+        // 検索パラメータ設定
         UserSearchParam param = UserSearchParam.builder()
-                .userId(dto.getUserId())
-                .username(dto.getUsername())
-                .email(dto.getEmail())
-                .role(dto.getRole())
+                .userId(request.getUserId())
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .role(request.getRole())
                 .build();
 
-        return userRepository.search(param);
+        // ユーザー検索
+        List<User> result = userRepository.search(param);
+        List<UserSearchResponse> response = new ArrayList<UserSearchResponse>();
+        for (User user : result) {
+            response.add(new UserSearchResponse(user));
+        }
+
+        return response;
     }
 
 }

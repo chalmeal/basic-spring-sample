@@ -10,7 +10,7 @@ public class NotFoundException extends RuntimeException {
     }
 
     public NotFoundException(String message, String key) {
-        super(String.format(message + "%s", key));
+        super(String.format(message + "[%s]", key));
     }
 
 }
