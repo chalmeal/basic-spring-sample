@@ -1,7 +1,5 @@
 package sample.controller.user;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +13,7 @@ import sample.dto.request.user.UserSearchRequest;
 import sample.dto.response.ErrorResponse;
 import sample.dto.response.user.UserSearchResponse;
 import sample.service.UserService;
+import sample.utils.Pagination;
 import sample.utils.exception.NotFoundException;
 
 /** ユーザーコントローラ */
@@ -48,17 +47,21 @@ public class UserController {
      * @return ユーザー一覧
      */
     @GetMapping
-    public ResponseEntity<List<UserSearchResponse>> search(
+    public ResponseEntity<Pagination<UserSearchResponse>> search(
             @RequestParam(required = false) String userId,
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) Integer role) {
+            @RequestParam(required = false) Integer role,
+            @RequestParam(required = false, defaultValue = "30") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "1") Integer pageNumber) {
         // 検索リクエストパラメータ
         UserSearchRequest request = UserSearchRequest.builder()
                 .userId(userId)
                 .username(username)
                 .email(email)
                 .role(role)
+                .pageSize(pageSize)
+                .pageNumber(pageNumber)
                 .build();
 
         return ResponseEntity.ok().body(userService.search(request));

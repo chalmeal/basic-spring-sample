@@ -13,6 +13,7 @@ import sample.dto.response.user.UserSearchResponse;
 import sample.entity.User;
 import sample.query.user.UserSearchParam;
 import sample.repository.user.UserRepository;
+import sample.utils.Pagination;
 import sample.utils.exception.NotFoundException;
 
 /** ユーザーサービス */
@@ -44,13 +45,16 @@ public class UserService {
      * @return ユーザー一覧
      */
     @Transactional(readOnly = true)
-    public List<UserSearchResponse> search(UserSearchRequest request) {
+    public Pagination<UserSearchResponse> search(UserSearchRequest request) {
+        Pagination<UserSearchResponse> pagination = new Pagination<UserSearchResponse>();
         // 検索パラメータ設定
         UserSearchParam param = UserSearchParam.builder()
                 .userId(request.getUserId())
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .role(request.getRole())
+                .pageSize(request.getPageSize())
+                .pageNumber(request.getPageNumber())
                 .build();
 
         // ユーザー検索
@@ -59,8 +63,10 @@ public class UserService {
         for (User user : result) {
             response.add(new UserSearchResponse(user));
         }
+        // 総件数取得
+        int totalCount = userRepository.count(param);
 
-        return response;
+        return pagination.paging(response, totalCount, request.getPageSize());
     }
 
 }

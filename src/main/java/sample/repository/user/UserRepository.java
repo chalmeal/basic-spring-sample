@@ -32,4 +32,13 @@ public interface UserRepository {
     @Select
     public List<User> search(UserSearchParam param);
 
+    /**
+     * 総件数取得
+     * 
+     * @param param 検索パラメータ
+     * @return 総件数
+     */
+    @Select
+    public int count(UserSearchParam param);
+
 }

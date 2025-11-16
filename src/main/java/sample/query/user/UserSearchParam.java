@@ -18,4 +18,10 @@ public class UserSearchParam {
 
     /** 権限 */
     private Integer role;
+
+    /** ページサイズ */
+    private Integer pageSize;
+
+    /** ページ番号 */
+    private Integer pageNumber;
 }

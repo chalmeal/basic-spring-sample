@@ -18,4 +18,10 @@ public class UserSearchRequest {
 
     /** 権限 */
     private Integer role;
+
+    /** ページサイズ */
+    private Integer pageSize;
+
+    /** ページ番号 */
+    private Integer pageNumber;
 }

@@ -1,8 +1,5 @@
 SELECT
-  user_id,
-  username,
-  email,
-  role
+  count(*)
 FROM
   users
 WHERE
@@ -20,4 +17,3 @@ WHERE
   AND role = /* param.role */'dummy'
   /*%end*/
 ORDER BY id
-LIMIT /* param.pageSize */10 OFFSET /* param.pageNumber */0;
