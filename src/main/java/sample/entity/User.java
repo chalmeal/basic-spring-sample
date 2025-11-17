@@ -36,6 +36,9 @@ public class User {
     /** 権限 */
     private int role;
 
+    /** 状態 */
+    private int status;
+
     /** 登録日時 */
     private LocalDateTime createdAt;
 
@@ -44,4 +47,36 @@ public class User {
 
     /** 削除日時 */
     private LocalDateTime deletedAt;
+
+    /** 権限定数 */
+    public enum Role {
+        ADMIN(0),
+        USER(1);
+
+        private final int value;
+
+        Role(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    /** 状態定数 */
+    public enum Status {
+        TEMPORARY(0),
+        REGISTERED(1);
+
+        private final int value;
+
+        Status(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

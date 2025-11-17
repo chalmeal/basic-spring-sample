@@ -3,11 +3,9 @@ package sample.dto.response.user;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import lombok.Data;
 import sample.entity.User;
 
 /** ユーザー検索レスポンス */
-@Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserSearchResponse {
     /** ユーザーID */

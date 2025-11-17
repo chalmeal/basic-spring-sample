@@ -5,6 +5,10 @@ package sample.utils.exception;
  */
 public class ExistsResourceException extends RuntimeException {
 
+    public ExistsResourceException() {
+        super();
+    }
+
     public ExistsResourceException(String message) {
         super(message);
     }

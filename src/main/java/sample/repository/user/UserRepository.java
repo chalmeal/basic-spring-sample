@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.seasar.doma.Dao;
+import org.seasar.doma.Insert;
 import org.seasar.doma.Select;
+import org.seasar.doma.Update;
 import org.seasar.doma.boot.ConfigAutowireable;
 
 import sample.entity.User;
+import sample.query.user.UserRegisterParam;
+import sample.query.user.UserRegisterTemporaryParam;
 import sample.query.user.UserSearchParam;
 
 /** ユーザーDAO */
@@ -30,7 +34,7 @@ public interface UserRepository {
      * @return ユーザーID
      */
     @Select
-    public boolean getByEmail(String email);
+    public Long getIdByEmail(String email);
 
     /**
      * ユーザー検索
@@ -49,5 +53,23 @@ public interface UserRepository {
      */
     @Select
     public int count(UserSearchParam param);
+
+    /**
+     * ユーザー仮登録
+     * 
+     * @param param ユーザー仮登録パラメータ
+     * @return 登録結果
+     */
+    @Insert(sqlFile = true)
+    public int registerTemporary(UserRegisterTemporaryParam param);
+
+    /**
+     * ユーザー登録
+     * 
+     * @param param ユーザー登録パラメータ
+     * @return 登録結果
+     */
+    @Update(sqlFile = true)
+    public int register(UserRegisterParam param);
 
 }
