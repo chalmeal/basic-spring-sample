@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sample.dto.request.user.UserRegisterTemporaryRequest;
 import sample.dto.request.user.UserSearchRequest;
 import sample.dto.response.user.UserGetResponse;
@@ -17,12 +18,12 @@ import sample.query.user.UserSearchParam;
 import sample.repository.user.UserRepository;
 import sample.utils.MailUtils;
 import sample.utils.Pagination;
-import sample.utils.exception.ExistsResourceException;
 import sample.utils.exception.NotFoundException;
 
 /** ユーザーサービス */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     /** ユーザーリポジトリDI */
     private final UserRepository userRepository;
@@ -90,7 +91,10 @@ public class UserService {
     public void registerTemporaryUser(UserRegisterTemporaryRequest request) throws RuntimeException {
         // メールアドレス重複チェック
         if (userRepository.getByEmail(request.getEmail())) {
-            throw new ExistsResourceException("メールアドレスが既に登録済みです。", request.getEmail());
+            // メールアドレスが既に登録済みの場合はメールを送信せずに処理を中断
+            // セキュリティの観点から、登録済みかどうかは通知しない
+            log.info("既に登録済みのメールアドレスが仮登録を行いました。: {}", request.getEmail());
+            return;
         }
 
         String mailBody = String.format("""
