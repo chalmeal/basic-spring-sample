@@ -22,6 +22,17 @@ spring:
     naming:
       entity: snake_lower_case
       column: snake_lower_case
+  
+  mail:
+    host: mailhog
+    port: 1025
+    username: "sample"
+    password: "password"
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+      from: "noreply@sample.jp"
+      register-link: "http://localhost:3000/register"
 
 logging:
   level:

@@ -25,6 +25,15 @@ services:
       - "3306:3306"
     networks:
       - app-network
+  
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - app-network
 
 networks:
   app-network:

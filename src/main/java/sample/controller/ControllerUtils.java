@@ -70,7 +70,7 @@ public class ControllerUtils {
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         log.error(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("サーバーエラーが発生しました。"));
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
 }

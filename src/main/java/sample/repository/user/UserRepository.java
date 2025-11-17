@@ -24,6 +24,15 @@ public interface UserRepository {
     public Optional<User> getByUserId(String userId);
 
     /**
+     * メールアドレスで取得
+     * 
+     * @param email メールアドレス
+     * @return ユーザーID
+     */
+    @Select
+    public boolean getByEmail(String email);
+
+    /**
      * ユーザー検索
      * 
      * @param param 検索パラメータ

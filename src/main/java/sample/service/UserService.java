@@ -3,17 +3,21 @@ package sample.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import sample.dto.request.user.UserRegisterTemporaryRequest;
 import sample.dto.request.user.UserSearchRequest;
 import sample.dto.response.user.UserGetResponse;
 import sample.dto.response.user.UserSearchResponse;
 import sample.entity.User;
 import sample.query.user.UserSearchParam;
 import sample.repository.user.UserRepository;
+import sample.utils.MailUtils;
 import sample.utils.Pagination;
+import sample.utils.exception.ExistsResourceException;
 import sample.utils.exception.NotFoundException;
 
 /** ユーザーサービス */
@@ -22,6 +26,15 @@ import sample.utils.exception.NotFoundException;
 public class UserService {
     /** ユーザーリポジトリDI */
     private final UserRepository userRepository;
+    /** メール送信ユーティリティDI */
+    private final MailUtils mailUtils;
+    /** 登録リンク */
+    @Value("${spring.mail.properties.register-link}")
+    private String registerLink;
+
+    /** ログイン */
+
+    /** ログアウト */
 
     /**
      * ユーザーIDで取得
@@ -67,6 +80,30 @@ public class UserService {
         int totalCount = userRepository.count(param);
 
         return pagination.paging(response, totalCount, request.getPageSize());
+    }
+
+    /**
+     * ユーザー仮登録
+     * 
+     * @param request ユーザー仮登録リクエスト
+     */
+    public void registerTemporaryUser(UserRegisterTemporaryRequest request) throws RuntimeException {
+        // メールアドレス重複チェック
+        if (userRepository.getByEmail(request.getEmail())) {
+            throw new ExistsResourceException("メールアドレスが既に登録済みです。", request.getEmail());
+        }
+
+        String mailBody = String.format("""
+                    仮登録が完了しました。\n
+                    以下のリンクから本登録を行ってください。\n
+                    \n
+                    %s
+                """, registerLink);
+        mailUtils.sendMail(MailUtils.MailSenderObject.builder()
+                .to(request.getEmail())
+                .subject("仮登録完了のお知らせ")
+                .body(mailBody)
+                .build());
     }
 
 }
