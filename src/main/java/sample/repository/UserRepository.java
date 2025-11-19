@@ -1,4 +1,4 @@
-package sample.repository.user;
+package sample.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +8,7 @@ import org.seasar.doma.Insert;
 import org.seasar.doma.Select;
 import org.seasar.doma.Update;
 import org.seasar.doma.boot.ConfigAutowireable;
+import org.seasar.doma.jdbc.SqlLogType;
 
 import sample.entity.User;
 import sample.query.user.UserRegisterParam;
@@ -26,6 +27,15 @@ public interface UserRepository {
      */
     @Select
     public Optional<User> getByUserId(String userId);
+
+    /**
+     * メールアドレスで取得
+     * 
+     * @param email メールアドレス
+     * @return ユーザー情報
+     */
+    @Select
+    public Optional<User> getByEmail(String email);
 
     /**
      * メールアドレスで取得
@@ -69,7 +79,7 @@ public interface UserRepository {
      * @param param ユーザー登録パラメータ
      * @return 登録結果
      */
-    @Update(sqlFile = true)
+    @Update(sqlFile = true, sqlLog = SqlLogType.NONE)
     public int register(UserRegisterParam param);
 
 }

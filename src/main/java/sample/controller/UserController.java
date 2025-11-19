@@ -1,4 +1,4 @@
-package sample.controller.user;
+package sample.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -6,12 +6,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
-/**
- * <pre>
- * ページネーションのコンテキストクラス
- * ページネーションに関する情報を保持します。
- * </pre>
- */
+/** ページネーション */
 @Data
 @Component
 public class Pagination<T> {
@@ -25,14 +20,12 @@ public class Pagination<T> {
     private long totalCount;
 
     /**
-     * <pre>
      * ページングの設定
-     * データと総件数からページング情報を設定します。
-     * </pre>
      * 
      * @param result     ページング対象のデータ
      * @param totalCount 総件数
-     * @return ページング情報
+     * @param pageSize   ページサイズ
+     * @return ページネーション情報
      */
     public Pagination<T> paging(List<T> result, long totalCount, int pageSize) {
         this.data = result;

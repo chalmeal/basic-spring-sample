@@ -21,7 +21,7 @@ import sample.entity.User;
 import sample.query.user.UserRegisterParam;
 import sample.query.user.UserRegisterTemporaryParam;
 import sample.query.user.UserSearchParam;
-import sample.repository.user.UserRepository;
+import sample.repository.UserRepository;
 import sample.utils.MailUtils;
 import sample.utils.Pagination;
 import sample.utils.exception.ExistsResourceException;
@@ -32,6 +32,8 @@ import sample.utils.exception.NotFoundException;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+    /** パスワードハッシュサービスDI */
+    private final PasswordHashService passwordHashService;
     /** ユーザーリポジトリDI */
     private final UserRepository userRepository;
     /** メール送信ユーティリティDI */
@@ -138,7 +140,7 @@ public class UserService {
                     .id(id)
                     .userId(request.getUserId())
                     .username(request.getUsername())
-                    .password(request.getPassword())
+                    .password(passwordHashService.hashPassword(request.getPassword()))
                     .role(User.Role.USER.getValue())
                     .status(User.Status.REGISTERED.getValue())
                     .build();
