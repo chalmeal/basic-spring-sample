@@ -97,6 +97,7 @@ public class UserService {
      * 
      * @param request ユーザー仮登録リクエスト
      */
+    @Transactional
     public void registerTemporaryUser(UserRegisterTemporaryRequest request) throws RuntimeException {
         try {
             // ユーザー仮登録パラメータ設定
@@ -133,6 +134,7 @@ public class UserService {
      * 
      * @param request ユーザー登録リクエスト
      */
+    @Transactional
     public void registerUser(String email, UserRegisterRequest request) throws RuntimeException {
         try {
             Long id = userRepository.getIdByEmail(email);
