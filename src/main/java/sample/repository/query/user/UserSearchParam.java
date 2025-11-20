@@ -1,10 +1,10 @@
-package sample.query.user;
+package sample.repository.query.user;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 /** ユーザー検索クエリパラメータ */
-@Data
+@Getter
 @Builder
 public class UserSearchParam {
     /** ユーザーID */

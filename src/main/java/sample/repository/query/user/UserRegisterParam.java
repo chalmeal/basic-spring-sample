@@ -1,7 +1,10 @@
-package sample.query.user;
+package sample.repository.query.user;
 
 import lombok.Builder;
+import lombok.Getter;
 
+/** ユーザー登録クエリパラメータ */
+@Getter
 @Builder
 public class UserRegisterParam {
     /** ID */

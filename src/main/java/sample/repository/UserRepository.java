@@ -11,9 +11,9 @@ import org.seasar.doma.boot.ConfigAutowireable;
 import org.seasar.doma.jdbc.SqlLogType;
 
 import sample.entity.User;
-import sample.query.user.UserRegisterParam;
-import sample.query.user.UserRegisterTemporaryParam;
-import sample.query.user.UserSearchParam;
+import sample.repository.query.user.UserRegisterParam;
+import sample.repository.query.user.UserRegisterTemporaryParam;
+import sample.repository.query.user.UserSearchParam;
 
 /** ユーザーDAO */
 @Dao

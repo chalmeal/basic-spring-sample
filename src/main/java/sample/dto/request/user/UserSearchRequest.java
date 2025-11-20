@@ -1,11 +1,15 @@
 package sample.dto.request.user;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import lombok.Builder;
 import lombok.Getter;
 
 /** ユーザー検索リクエスト */
 @Getter
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserSearchRequest {
     /** ユーザーID */
     private String userId;

@@ -1,8 +1,10 @@
-package sample.query.user;
+package sample.repository.query.user;
 
 import lombok.Builder;
+import lombok.Getter;
 
-/** ユーザー仮登録パラメータ */
+/** ユーザー仮登録クエリパラメータ */
+@Getter
 @Builder
 public class UserRegisterTemporaryParam {
     /** メールアドレス */
