@@ -1,6 +1,9 @@
 spring:
   application:
     name: basic-sample-spring
+
+  security:
+    user.password: unused
   
   jwt:
     access-token:
@@ -9,6 +12,7 @@ spring:
     register-mail:
       secret: 2sx5Q1Dn8aFEiijW5DgNNu9v5WLBHrzehfAifoVkmRWDmSi4CkeNKVj3Xj5Bowbs
       expiration: 86400
+
   datasource:
     url: jdbc:mysql://db:3306/sample-db?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Tokyo
     username: user
