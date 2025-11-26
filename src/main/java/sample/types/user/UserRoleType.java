@@ -2,8 +2,9 @@ package sample.types.user;
 
 /** ユーザー権限定数 */
 public enum UserRoleType {
-    ADMIN(0, "ADMIN"),
-    USER(1, "USER");
+    NONE(0, "NONE"),
+    USER(1, "USER"),
+    ADMIN(9, "ADMIN");
 
     private final int value;
     private final String roleName;

@@ -42,8 +42,10 @@ public class UserController {
      * @return ユーザー情報
      */
     @GetMapping("/{user_id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getByUserid(@PathVariable("user_id") String userId) {
         try {
+            // TODO: userIdは認証情報と照合して、自分自身またはADMIN権限のみアクセス可能にする
             return ResponseEntity.ok().body(userService.getByUserId(userId));
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

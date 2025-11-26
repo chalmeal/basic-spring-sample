@@ -1,8 +1,6 @@
 package sample.utils.exception;
 
-/**
- * リソース未検出例外
- */
+/** リソース未発見例外 */
 public class NotFoundException extends RuntimeException {
 
     public NotFoundException(String message) {
