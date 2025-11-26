@@ -22,6 +22,8 @@ import sample.repository.UserRepository;
 import sample.repository.query.user.UserRegisterParam;
 import sample.repository.query.user.UserRegisterTemporaryParam;
 import sample.repository.query.user.UserSearchParam;
+import sample.types.user.UserRoleType;
+import sample.types.user.UserStatusType;
 import sample.utils.MailUtils;
 import sample.utils.Pagination;
 import sample.utils.exception.ExistsResourceException;
@@ -33,7 +35,7 @@ import sample.utils.exception.NotFoundException;
 @Slf4j
 public class UserService {
     /** パスワードハッシュサービスDI */
-    private final PasswordHashService passwordHashService;
+    private final SecurityService passwordHashService;
     /** ユーザーリポジトリDI */
     private final UserRepository userRepository;
     /** メール送信ユーティリティDI */
@@ -103,7 +105,7 @@ public class UserService {
             // ユーザー仮登録パラメータ設定
             UserRegisterTemporaryParam param = UserRegisterTemporaryParam.builder()
                     .email(request.getEmail())
-                    .status(User.Status.TEMPORARY.getValue())
+                    .status(UserStatusType.TEMPORARY.getValue())
                     .build();
             userRepository.registerTemporary(param);
 
@@ -143,8 +145,8 @@ public class UserService {
                     .userId(request.getUserId())
                     .username(request.getUsername())
                     .password(passwordHashService.hashPassword(request.getPassword()))
-                    .role(User.Role.USER.getValue())
-                    .status(User.Status.REGISTERED.getValue())
+                    .role(UserRoleType.USER.getValue())
+                    .status(UserStatusType.REGISTERED.getValue())
                     .build();
 
             userRepository.register(param);

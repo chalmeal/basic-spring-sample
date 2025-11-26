@@ -3,6 +3,7 @@ package sample.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +28,9 @@ import sample.utils.exception.NotFoundException;
 
 /** ユーザーコントローラ */
 @RestController
+@Slf4j
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-@Slf4j
 public class UserController {
     /** ユーザーサービスDI */
     private final UserService userService;
@@ -62,6 +63,7 @@ public class UserController {
      * @return ユーザー一覧
      */
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Pagination<UserSearchResponse>> search(
             @RequestParam(name = "user_id", required = false) String userId,
             @RequestParam(name = "username", required = false) String username,

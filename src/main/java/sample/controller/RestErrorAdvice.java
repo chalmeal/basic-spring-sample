@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,11 +14,12 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 import sample.dto.response.ErrorResponse;
+import sample.utils.exception.UnAuthorizedException;
 
 /** コントローラー共通ユーティリティ */
 @ControllerAdvice
 @Slf4j
-public class ControllerUtils {
+public class RestErrorAdvice {
 
     /**
      * バリデーションエラー処理(400)
@@ -45,6 +47,30 @@ public class ControllerUtils {
     public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(String.format("%s は必須です。", ex.getParameterName())));
+    }
+
+    /**
+     * 認証エラー処理(401)
+     * 
+     * @param ex 例外情報
+     * @return 401エラーレスポンス
+     */
+    @ExceptionHandler(UnAuthorizedException.class)
+    public ResponseEntity<?> handleUnauthorized(UnAuthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    /**
+     * アクセス認可エラー処理(403)
+     * 
+     * @param ex 例外情報
+     * @return 403エラーレスポンス
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("アクセス権限がありません。"));
     }
 
     /**

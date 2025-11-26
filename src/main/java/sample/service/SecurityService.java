@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 /** パスワードハッシュサービス */
 @Service
-public class PasswordHashService {
+public class SecurityService {
 
     /**
      * パスワードをハッシュ化(SHA-512)
