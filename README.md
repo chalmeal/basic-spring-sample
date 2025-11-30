@@ -12,7 +12,6 @@
 |     |     |            ├── controller                         # プレゼンテーション層
 |     |     |            ├── dto                                # DTO
 |     |     |            ├── entity                             # エンティティ層
-|     |     |            ├── query                              # データアクセスクエリパラメタ
 |     |     |            ├── repository                         # データアクセス層
 |     |     |            ├── service                            # アプリケーション層
 |     |     |            └── SampleApplication.java             # アプリケーションエントリーポイント
@@ -48,3 +47,23 @@
 ```
 http://localhost:8080/swagger-ui/index.html
 ```
+
+### 動作確認
+#### 1. ログイン
+下記のAPIでログインを行う。
+> auth-controller -> /api/auth/login
+
+| メールアドレス | パスワード |
+| ------------ | -------- |
+| taro.yamada@example.com | Passw0rd |
+
+> ログインAPIで返されたaccess_tokenを「2. Authorizationヘッダー設定」で利用する。
+
+#### 2. Authorizationヘッダー設定
+認可が必要なAPIを動作させるために、Authorizationヘッダーを設定する。
+
+* SwaggerUI上部の「Authorize」を押下
+* Valueに「1. ログイン」で取得したaccess_tokenを設定しAuthorizedを押下
+* user-controller -> /api/user/{user_id}のAPIで動作確認
+    * user_idに「taro.yamada」を入力し、Execute
+* ステータスコード200と、レコードが返されればOK

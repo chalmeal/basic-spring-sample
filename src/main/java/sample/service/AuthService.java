@@ -19,8 +19,8 @@ import sample.utils.exception.UnAuthorizedException;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    /** パスワードハッシュサービスDI */
-    private final SecurityService passwordHashService;
+    /** セキュリティサービスDI */
+    private final SecurityService securityService;
     /** 認証リポジトリDI */
     private final AuthRepository authRepository;
     /** ユーザーリポジトリDI */
@@ -39,7 +39,7 @@ public class AuthService {
                 .orElseThrow(() -> new UnAuthorizedException("メールアドレスまたはパスワードが違います。"));
 
         String hashedPassword = authRepository.getHashPassword(request.getEmail());
-        if (!passwordHashService.verify(request.getPassword(), hashedPassword)) {
+        if (!securityService.verify(request.getPassword(), hashedPassword)) {
             // 認証失敗時の処理
             throw new UnAuthorizedException("メールアドレスまたはパスワードが違います。");
         }

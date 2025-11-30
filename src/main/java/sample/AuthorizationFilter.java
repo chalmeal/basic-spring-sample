@@ -58,6 +58,7 @@ public class AuthorizationFilter implements Filter {
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, null,
                     authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            authentication.setDetails(claims);
 
             chain.doFilter(request, response);
         } catch (JwtException e) {

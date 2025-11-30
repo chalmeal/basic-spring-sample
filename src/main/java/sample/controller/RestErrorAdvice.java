@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -62,13 +63,25 @@ public class RestErrorAdvice {
     }
 
     /**
-     * アクセス認可エラー処理(403)
+     * 権限認可エラー処理(403)
      * 
      * @param ex 例外情報
      * @return 403エラーレスポンス
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("アクセス権限がありません。"));
+    }
+
+    /**
+     * JWTクレーム認可エラー処理(403)
+     * 
+     * @param ex 例外情報
+     * @return 403エラーレスポンス
+     */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<?> handleMethodValidationException(HandlerMethodValidationException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse("アクセス権限がありません。"));
     }
