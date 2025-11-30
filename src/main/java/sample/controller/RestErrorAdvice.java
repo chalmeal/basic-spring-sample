@@ -83,7 +83,8 @@ public class RestErrorAdvice {
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<?> handleMethodValidationException(HandlerMethodValidationException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ErrorResponse("アクセス権限がありません。"));
+                .body(new ErrorResponse(ex.getAllErrors().get(0)
+                        .getDefaultMessage()));
     }
 
     /**
