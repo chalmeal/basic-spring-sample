@@ -3,6 +3,10 @@ package sample.utils.exception;
 /** リソース未発見例外 */
 public class NotFoundException extends RuntimeException {
 
+    public NotFoundException() {
+        super();
+    }
+
     public NotFoundException(String message) {
         super(message);
     }

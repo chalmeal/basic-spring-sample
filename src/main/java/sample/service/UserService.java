@@ -44,10 +44,6 @@ public class UserService {
     @Value("${spring.mail.properties.register-link}")
     private String registerLink;
 
-    /** ログイン */
-
-    /** ログアウト */
-
     /**
      * ユーザーIDで取得
      * 

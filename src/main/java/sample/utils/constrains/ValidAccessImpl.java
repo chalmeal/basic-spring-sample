@@ -8,6 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import sample.types.user.UserRoleType;
+import sample.utils.JwtUtils;
 
 /** アクセス権限のバリデーション実装 */
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class ValidAccessImpl implements ConstraintValidator<ValidAccess, String>
         }
 
         // 管理者権限は全てのリソースにアクセス可能
-        String role = claims.get("role", String.class);
+        String role = JwtUtils.getClaimValue("role");
         if (UserRoleType.ADMIN.getRoleName().equals(role)) {
             return true;
         }

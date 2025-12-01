@@ -3,13 +3,93 @@ package sample.service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Optional;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import sample.dto.request.auth.PasswordChangeRequest;
+import sample.entity.PasswordResetInfo;
+import sample.entity.User;
+import sample.repository.AuthRepository;
+import sample.repository.UserRepository;
+import sample.utils.DateUtils;
+import sample.utils.MailUtils;
+import sample.utils.exception.NotFoundException;
 
 /** パスワードハッシュサービス */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class SecurityService {
+    /** ユーザーリポジトリDI */
+    private final UserRepository userRepository;
+    /** 認証リポジトリDI */
+    private final AuthRepository authRepository;
+    /** メール送信ユーティリティDI */
+    private final MailUtils mailUtils;
+    /** パスワードリセットリンク */
+    @Value("${spring.mail.properties.password-reset-link}")
+    private String resetLink;
+
+    /**
+     * パスワードリセット（未ログイン）
+     * 
+     * @param userId ユーザーID
+     */
+    public void resetPassword(String email) {
+        Optional<User> user = userRepository.getByEmail(email);
+        if (user.isEmpty()) {
+            log.warn("未登録のメールアドレスでパスワードリセット要求がありました。： {}", email);
+            throw new NotFoundException();
+        }
+
+        String token = UUID.randomUUID().toString();
+        String expirationAt = LocalDateTime.now().plusMinutes(30).toString();
+        authRepository.createPasswordResetInfo(user.get().getId(), token, expirationAt);
+
+        String body = String.format("""
+                パスワードがリセットされました。\n
+                下記のリンクから新しいパスワードを設定してください。\n
+                %s?token=%s
+                """, resetLink, token);
+        mailUtils.sendMail(MailUtils.MailSenderObject.builder()
+                .to(email)
+                .subject("パスワードリセットのお知らせ")
+                .body(body)
+                .build());
+    }
+
+    /**
+     * パスワード変更（未ログイン）
+     * 
+     * @param request パスワード変更リクエスト
+     */
+    public void changePassword(PasswordChangeRequest request) {
+        PasswordResetInfo passwordResetInfo = authRepository.getPasswordResetInfoByToken(request.getToken())
+                .orElseThrow(() -> new NotFoundException("無効なパスワードリセットトークンです。"));
+        // 確認用パスワードと新しいパスワードの一致チェック
+        if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
+            throw new IllegalArgumentException("新しいパスワードと確認用パスワードが一致しません。");
+        }
+        // トークンの有効性チェック
+        if (passwordResetInfo.getUsed()
+                || DateUtils.parseDateTime(passwordResetInfo.getExpiresAt()).isBefore(LocalDateTime.now())) {
+            throw new NotFoundException("リンクが無効です。再度パスワードリセットを行ってください。");
+        }
+
+        // パスワードリセット情報を使用済みに設定
+        authRepository.updatePasswordResetInfoAsUsed(passwordResetInfo.getId());
+
+        // パスワード更新
+        String newPassword = hashPassword(request.getNewPassword());
+        authRepository.updatePassword(passwordResetInfo.getUsersId(), newPassword);
+    }
 
     /**
      * パスワードをハッシュ化(SHA-512)
@@ -34,7 +114,7 @@ public class SecurityService {
      * @param hashedPassword DBに保存されているハッシュ化されたパスワード
      * @return パスワードが一致する場合はtrue、それ以外はfalse
      */
-    public boolean verify(String loginPassword, String hashedPassword) {
+    public boolean verifyPassword(String loginPassword, String hashedPassword) {
         String loginHashPassword = hashPassword(loginPassword);
 
         return MessageDigest.isEqual(

@@ -39,7 +39,7 @@ public class AuthService {
                 .orElseThrow(() -> new UnAuthorizedException("メールアドレスまたはパスワードが違います。"));
 
         String hashedPassword = authRepository.getHashPassword(request.getEmail());
-        if (!securityService.verify(request.getPassword(), hashedPassword)) {
+        if (!securityService.verifyPassword(request.getPassword(), hashedPassword)) {
             // 認証失敗時の処理
             throw new UnAuthorizedException("メールアドレスまたはパスワードが違います。");
         }

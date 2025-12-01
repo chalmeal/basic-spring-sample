@@ -45,6 +45,7 @@ spring:
       mail.smtp.starttls.enable: false
       from: "noreply@sample.jp"
       register-link: "http://localhost:3000/register"
+      password-reset-link: "http://localhost:3000/password/reset"
 
 logging:
   level:

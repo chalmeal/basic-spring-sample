@@ -1,4 +1,5 @@
 SELECT
+  id,
   user_id,
   username,
   role

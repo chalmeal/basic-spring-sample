@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -83,6 +85,23 @@ public class JwtUtils {
         } catch (Exception e) {
             throw new JwtException("JWTの解析に失敗しました。", e);
         }
+    }
+
+    /**
+     * JWTからクレームの値を取得する
+     * 
+     * @param key クレームのキー
+     * @return クレームの値
+     * @throws JwtException クレームが存在しない場合
+     */
+    public static String getClaimValue(String key) throws JwtException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Claims claims = (Claims) auth.getDetails();
+        if (claims == null || !claims.containsKey(key)) {
+            throw new JwtException("JWTに指定されたクレームが存在しません。");
+        }
+
+        return claims.get(key, String.class);
     }
 
 }
