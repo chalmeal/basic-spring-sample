@@ -8,6 +8,7 @@ import org.seasar.doma.Select;
 import org.seasar.doma.boot.ConfigAutowireable;
 
 import sample.entity.Subject;
+import sample.entity.SubjectResult;
 
 /** 科目DAO */
 @Dao
@@ -30,5 +31,15 @@ public interface SubjectRepository {
      */
     @Select
     public List<Subject> fetchAllSubject();
+
+    /**
+     * 科目結果をIDで取得
+     * 
+     * @param subjectResultId 科目結果ID
+     * @param userId          ユーザーID（管理者の場合はnull）
+     * @return 科目結果情報
+     */
+    @Select
+    public Optional<SubjectResult> getSubjectResultById(Long subjectResultId, String userId);
 
 }

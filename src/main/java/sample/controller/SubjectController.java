@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import sample.dto.response.ErrorResponse;
 import sample.service.SubjectService;
+import sample.types.user.UserRoleType;
+import sample.utils.JwtUtils;
 import sample.utils.exception.NotFoundException;
 
 /** 科目コントローラー */
@@ -47,6 +49,29 @@ public class SubjectController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> fetchSubject() {
         return ResponseEntity.ok().body(subjectService.fetchSubject());
+    }
+
+    /**
+     * 科目結果IDで取得
+     * 
+     * @param subjectResultId 科目結果ID
+     * @return 科目結果情報
+     */
+    @GetMapping("/result/{subject_result_id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getSubjectResultById(@PathVariable("subject_result_id") Long subjectResultId) {
+        try {
+            String userId = JwtUtils.getClaimValue("userId");
+            // 管理者の場合は全ユーザーの科目結果取得可のため、ユーザーIDをnullに設定
+            if (JwtUtils.getClaimValue("role").equals(UserRoleType.ADMIN.getRoleName())) {
+                userId = null;
+            }
+
+            return ResponseEntity.ok().body(subjectService.getSubjectResultById(subjectResultId, userId));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
     }
 
 }

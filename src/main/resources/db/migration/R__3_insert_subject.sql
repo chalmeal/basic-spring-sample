@@ -7,7 +7,7 @@ INSERT INTO subjects (name, created_at) VALUES
 ('社会', NOW());
 
 -- 科目別成績テーブル
-INSERT INTO subject_result (users_id, subject_id, score, created_at) VALUES
+INSERT INTO subject_results (users_id, subject_id, score, created_at) VALUES
 (2, 1, 85, NOW()),
 (2, 2, 90, NOW()),
 (2, 3, 78, NOW()),

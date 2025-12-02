@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import sample.dto.response.subject.SubjectFetchResponse;
 import sample.dto.response.subject.SubjectGetResponse;
+import sample.dto.response.subject.SubjectResultGetResponse;
 import sample.entity.Subject;
+import sample.entity.SubjectResult;
 import sample.repository.SubjectRepository;
 import sample.utils.exception.NotFoundException;
 
@@ -50,6 +52,21 @@ public class SubjectService {
         }
 
         return response;
+    }
+
+    /**
+     * 科目結果をIDで取得
+     * 
+     * @param subjectResultId 科目結果ID
+     * @return 科目結果情報
+     */
+    @Transactional(readOnly = true)
+    public SubjectResultGetResponse getSubjectResultById(Long subjectResultId, String userId) throws NotFoundException {
+        // 科目結果取得
+        SubjectResult subjectResult = subjectRepository.getSubjectResultById(subjectResultId, userId)
+                .orElseThrow(() -> new NotFoundException("科目結果が見つかりませんでした。", String.valueOf(subjectResultId)));
+
+        return new SubjectResultGetResponse(subjectResult);
     }
 
 }

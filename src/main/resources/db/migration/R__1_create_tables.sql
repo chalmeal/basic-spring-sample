@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS subjects (
 ) COMMENT='科目';
 
 -- 科目別成績テーブル
-CREATE TABLE IF NOT EXISTS subject_result (
+CREATE TABLE IF NOT EXISTS subject_results (
   id BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID'
   , users_id BIGINT unsigned NOT NULL COMMENT 'ユーザーID'
   , subject_id BIGINT unsigned NOT NULL COMMENT '科目ID'
