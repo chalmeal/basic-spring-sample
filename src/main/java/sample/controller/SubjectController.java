@@ -38,4 +38,15 @@ public class SubjectController {
         }
     }
 
+    /**
+     * 科目一覧取得（全件）
+     * 
+     * @return 科目一覧
+     */
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> fetchSubject() {
+        return ResponseEntity.ok().body(subjectService.fetchSubject());
+    }
+
 }

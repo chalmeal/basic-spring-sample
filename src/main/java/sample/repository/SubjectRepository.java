@@ -1,5 +1,6 @@
 package sample.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.seasar.doma.Dao;
@@ -21,5 +22,13 @@ public interface SubjectRepository {
      */
     @Select
     public Optional<Subject> getSubjectById(Long id);
+
+    /**
+     * 全科目取得
+     * 
+     * @return 科目リスト
+     */
+    @Select
+    public List<Subject> fetchAllSubject();
 
 }
