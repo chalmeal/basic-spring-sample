@@ -23,7 +23,16 @@ public interface AuthRepository {
      * @return ハッシュ化されたパスワード
      */
     @Select(sqlLog = SqlLogType.NONE)
-    public String getHashPassword(String email);
+    public String getHashPasswordByEmail(String email);
+
+    /**
+     * ハッシュ化されたパスワードを取得（ユーザーID指定）
+     * 
+     * @param userId ユーザーID
+     * @return ハッシュ化されたパスワード
+     */
+    @Select(sqlLog = SqlLogType.NONE)
+    public String getHashPasswordByUserId(String userId);
 
     /**
      * パスワードリセット情報をトークンで取得
@@ -54,6 +63,16 @@ public interface AuthRepository {
      */
     @Update(sqlFile = true, sqlLog = SqlLogType.NONE)
     public int updatePassword(Long usersId, String newPassword);
+
+    /**
+     * パスワードを更新（ユーザーID指定）
+     * 
+     * @param userId      ユーザーID
+     * @param newPassword ハッシュ化されたパスワード
+     * @return 更新件数
+     */
+    @Update(sqlFile = true, sqlLog = SqlLogType.NONE)
+    public int updatePasswordByUserId(String userId, String newPassword);
 
     /**
      * パスワードリセット情報を使用済みに設定

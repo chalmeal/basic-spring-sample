@@ -18,7 +18,6 @@ import sample.dto.response.ErrorResponse;
 import sample.service.AuthService;
 import sample.service.SecurityService;
 import sample.utils.exception.NotFoundException;
-import sample.utils.exception.UnAuthorizedException;
 
 /** 認証コントローラ */
 @RestController
@@ -39,12 +38,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
-        try {
-            return ResponseEntity.ok().body(authService.login(request));
-        } catch (UnAuthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ErrorResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok().body(authService.login(request));
     }
 
     /**

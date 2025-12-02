@@ -16,12 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import sample.dto.request.auth.PasswordChangeLoginAfterRequest;
 import sample.dto.request.user.UserRegisterRequest;
 import sample.dto.request.user.UserRegisterTemporaryRequest;
 import sample.dto.request.user.UserSearchRequest;
 import sample.dto.response.ErrorResponse;
 import sample.dto.response.user.UserSearchResponse;
+import sample.service.SecurityService;
 import sample.service.UserService;
+import sample.utils.JwtUtils;
 import sample.utils.Pagination;
 import sample.utils.constrains.ValidAccess;
 import sample.utils.exception.ExistsResourceException;
@@ -33,6 +36,7 @@ import sample.utils.exception.NotFoundException;
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
+    private final SecurityService securityService;
     /** ユーザーサービスDI */
     private final UserService userService;
 
@@ -125,6 +129,26 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (ExistsResourceException e) {
             // ユーザーIDが既に使用されている場合の処理
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * パスワード変更（ログイン後）
+     * 
+     * @param request パスワード変更リクエスト
+     * @return レスポンスエンティティ
+     */
+    @PostMapping("/password/change")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordChangeLoginAfterRequest request) {
+        try {
+            String userId = JwtUtils.getClaimValue("userId");
+            securityService.changePassword(request, userId);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            // 確認用パスワードと新しいパスワードが一致しない場合
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(e.getMessage()));
         }

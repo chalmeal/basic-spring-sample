@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import sample.dto.request.auth.PasswordChangeLoginAfterRequest;
 import sample.dto.request.auth.PasswordChangeRequest;
 import sample.entity.PasswordResetInfo;
 import sample.entity.User;
@@ -21,6 +22,7 @@ import sample.repository.UserRepository;
 import sample.utils.DateUtils;
 import sample.utils.MailUtils;
 import sample.utils.exception.NotFoundException;
+import sample.utils.exception.UnAuthorizedException;
 
 /** パスワードハッシュサービス */
 @Service
@@ -66,7 +68,7 @@ public class SecurityService {
     }
 
     /**
-     * パスワード変更（未ログイン）
+     * パスワード変更（ログイン前）
      * 
      * @param request パスワード変更リクエスト
      */
@@ -89,6 +91,30 @@ public class SecurityService {
         // パスワード更新
         String newPassword = hashPassword(request.getNewPassword());
         authRepository.updatePassword(passwordResetInfo.getUsersId(), newPassword);
+    }
+
+    /**
+     * パスワード変更（ログイン後）
+     * 
+     * @param request パスワード変更リクエスト
+     * @param userId  ユーザーID
+     */
+    public void changePassword(PasswordChangeLoginAfterRequest request, String userId) {
+        // 確認用パスワードと新しいパスワードの一致チェック
+        if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
+            throw new IllegalArgumentException("新しいパスワードと確認用パスワードが一致しません。");
+        }
+
+        // 現在のパスワード認証
+        String hashedPassword = authRepository.getHashPasswordByUserId(userId);
+        if (!verifyPassword(request.getCurrentPassword(), hashedPassword)) {
+            // 認証失敗時の処理
+            throw new UnAuthorizedException("現在のパスワードが違います。");
+        }
+
+        // パスワード更新
+        String newPassword = hashPassword(request.getNewPassword());
+        authRepository.updatePasswordByUserId(userId, newPassword);
     }
 
     /**
