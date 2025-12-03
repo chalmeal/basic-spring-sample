@@ -84,7 +84,7 @@ public class UserController {
                 .email(email)
                 .role(role)
                 .pageSize(pageSize)
-                .pageNumber(pageNumber)
+                .pageNumber(Pagination.pageNumberConvert(pageSize, pageNumber))
                 .build();
 
         return ResponseEntity.ok().body(userService.search(request));

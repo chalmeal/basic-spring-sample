@@ -6,13 +6,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.dto.response.ErrorResponse;
 import sample.service.SubjectService;
 import sample.types.user.UserRoleType;
 import sample.utils.JwtUtils;
+import sample.utils.Pagination;
 import sample.utils.exception.NotFoundException;
 
 /** 科目コントローラー */
@@ -72,6 +75,43 @@ public class SubjectController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse(e.getMessage()));
         }
+    }
+
+    /**
+     * 科目結果検索
+     * 
+     * @param userId     ユーザーID
+     * @param subjectId  科目ID
+     * @param scoreFrom  スコア（開始）
+     * @param scoreTo    スコア（終了）
+     * @param pageSize   ページサイズ
+     * @param pageNumber ページ番号
+     * @return 科目結果リスト
+     */
+    @GetMapping("/result")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> searchSubjectResult(
+            @RequestParam(name = "user_id", required = false) String userId,
+            @RequestParam(name = "subject_id", required = false) String subjectId,
+            @RequestParam(name = "score_from", required = false) String scoreFrom,
+            @RequestParam(name = "score_to", required = false) String scoreTo,
+            @RequestParam(name = "page_size", required = true, defaultValue = "30") Integer pageSize,
+            @RequestParam(name = "page_number", required = true, defaultValue = "1") Integer pageNumber) {
+        // 一般ユーザーの場合は自分の科目結果のみ取得可能
+        if (!JwtUtils.getClaimValue("role").equals(UserRoleType.ADMIN.getRoleName())) {
+            userId = JwtUtils.getClaimValue("userId");
+        }
+        // 検索リクエストパラメータ
+        SubjectResultSearchRequest request = SubjectResultSearchRequest.builder()
+                .userId(userId)
+                .subjectId(subjectId)
+                .scoreFrom(scoreFrom)
+                .scoreTo(scoreTo)
+                .pageSize(pageSize)
+                .pageNumber(Pagination.pageNumberConvert(pageSize, pageNumber))
+                .build();
+
+        return ResponseEntity.ok().body(subjectService.searchSubjectResult(request));
     }
 
 }

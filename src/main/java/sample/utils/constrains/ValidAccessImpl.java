@@ -23,6 +23,10 @@ public class ValidAccessImpl implements ConstraintValidator<ValidAccess, String>
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (value == null) {
+            return false;
+        }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             return false;

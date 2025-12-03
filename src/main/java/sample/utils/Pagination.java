@@ -39,4 +39,15 @@ public class Pagination<T> {
         return this;
     }
 
+    /**
+     * ページング開始位置の計算
+     * 
+     * @param pageSize   ページサイズ
+     * @param pageNumber ページ番号
+     * @return 開始位置
+     */
+    public static Integer pageNumberConvert(int pageSize, int pageNumber) {
+        return (pageNumber - 1) * pageSize;
+    }
+
 }

@@ -9,6 +9,8 @@ import org.seasar.doma.boot.ConfigAutowireable;
 
 import sample.entity.Subject;
 import sample.entity.SubjectResult;
+import sample.entity.SubjectResultSearch;
+import sample.repository.query.subject.SubjectResultSearchParam;
 
 /** 科目DAO */
 @Dao
@@ -41,5 +43,23 @@ public interface SubjectRepository {
      */
     @Select
     public Optional<SubjectResult> getSubjectResultById(Long subjectResultId, String userId);
+
+    /**
+     * 科目結果検索
+     * 
+     * @param param 科目結果検索パラメータ
+     * @return 科目結果リスト
+     */
+    @Select
+    public List<SubjectResultSearch> searchSubjectResult(SubjectResultSearchParam param);
+
+    /**
+     * 科目結果検索件数取得
+     * 
+     * @param param 科目結果検索パラメータ
+     * @return 科目結果件数
+     */
+    @Select
+    public int countSubjectResultSearch(SubjectResultSearchParam param);
 
 }

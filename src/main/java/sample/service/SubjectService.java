@@ -7,12 +7,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.dto.response.subject.SubjectFetchResponse;
 import sample.dto.response.subject.SubjectGetResponse;
 import sample.dto.response.subject.SubjectResultGetResponse;
+import sample.dto.response.subject.SubjectResultSearchResponse;
 import sample.entity.Subject;
 import sample.entity.SubjectResult;
+import sample.entity.SubjectResultSearch;
 import sample.repository.SubjectRepository;
+import sample.repository.query.subject.SubjectResultSearchParam;
+import sample.utils.Pagination;
 import sample.utils.exception.NotFoundException;
 
 /** 科目サービス */
@@ -67,6 +72,35 @@ public class SubjectService {
                 .orElseThrow(() -> new NotFoundException("科目結果が見つかりませんでした。", String.valueOf(subjectResultId)));
 
         return new SubjectResultGetResponse(subjectResult);
+    }
+
+    /**
+     * 科目結果検索
+     * 
+     * @param request 科目結果検索リクエスト
+     * @return 科目結果リスト
+     */
+    @Transactional(readOnly = true)
+    public Pagination<SubjectResultSearchResponse> searchSubjectResult(SubjectResultSearchRequest request) {
+        Pagination<SubjectResultSearchResponse> pagination = new Pagination<SubjectResultSearchResponse>();
+        // 科目結果検索パラメータ設定
+        SubjectResultSearchParam param = SubjectResultSearchParam.builder()
+                .userId(request.getUserId())
+                .subjectId(request.getSubjectId())
+                .scoreFrom(request.getScoreFrom())
+                .scoreTo(request.getScoreTo())
+                .pageSize(request.getPageSize())
+                .pageNumber(request.getPageNumber())
+                .build();
+        // 科目結果検索
+        List<SubjectResultSearch> result = subjectRepository.searchSubjectResult(param);
+        List<SubjectResultSearchResponse> response = new ArrayList<SubjectResultSearchResponse>();
+        for (SubjectResultSearch subjectResult : result) {
+            response.add(new SubjectResultSearchResponse(subjectResult));
+        }
+        int totalCount = subjectRepository.countSubjectResultSearch(param);
+
+        return pagination.paging(response, totalCount, request.getPageSize());
     }
 
 }
