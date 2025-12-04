@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 /** 科目結果検索リクエスト */
-@Getter
+@Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class SubjectResultSearchRequest {

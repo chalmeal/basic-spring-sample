@@ -5,17 +5,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.dto.response.ErrorResponse;
 import sample.service.SubjectService;
 import sample.types.user.UserRoleType;
+import sample.utils.CsvUtils;
 import sample.utils.JwtUtils;
 import sample.utils.Pagination;
+import sample.utils.exception.CsvExportException;
 import sample.utils.exception.NotFoundException;
 
 /** 科目コントローラー */
@@ -112,6 +117,30 @@ public class SubjectController {
                 .build();
 
         return ResponseEntity.ok().body(subjectService.searchSubjectResult(request));
+    }
+
+    /**
+     * 科目結果CSV出力
+     * 
+     * @param request 科目結果CSV出力リクエスト
+     * @return CSVファイル
+     */
+    @PostMapping("/csv/export")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> exportSubjectResultsToCsv(@RequestBody @Valid SubjectResultSearchRequest request) {
+        try {
+            // 一般ユーザーの場合は自分の科目結果のみ取得可能
+            if (!JwtUtils.getClaimValue("role").equals(UserRoleType.ADMIN.getRoleName())) {
+                request.setUserId(JwtUtils.getClaimValue("userId"));
+            }
+            request.setPageNumber(Pagination.pageNumberConvert(request.getPageSize(), request.getPageNumber()));
+            byte[] csvData = subjectService.exportSubjectResultsToCsv(request);
+
+            return CsvUtils.csvExportResponse(csvData, "科目成績.csv");
+        } catch (CsvExportException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
     }
 
 }

@@ -17,6 +17,7 @@ import sample.entity.SubjectResult;
 import sample.entity.SubjectResultSearch;
 import sample.repository.SubjectRepository;
 import sample.repository.query.subject.SubjectResultSearchParam;
+import sample.utils.CsvUtils;
 import sample.utils.Pagination;
 import sample.utils.exception.NotFoundException;
 
@@ -103,4 +104,38 @@ public class SubjectService {
         return pagination.paging(response, totalCount, request.getPageSize());
     }
 
+    /**
+     * 科目結果CSV出力
+     * 
+     * @param request 科目結果CSV出力リクエスト
+     * @return CSVファイル
+     */
+    @Transactional(readOnly = true)
+    public byte[] exportSubjectResultsToCsv(SubjectResultSearchRequest request) {
+        // 科目結果検索パラメータ設定
+        SubjectResultSearchParam param = SubjectResultSearchParam.builder()
+                .userId(request.getUserId())
+                .subjectId(request.getSubjectId())
+                .scoreFrom(request.getScoreFrom())
+                .scoreTo(request.getScoreTo())
+                .pageSize(request.getPageSize())
+                .pageNumber(request.getPageNumber())
+                .build();
+        // 科目結果検索
+        List<SubjectResultSearch> result = subjectRepository.searchSubjectResult(param);
+
+        CsvUtils csvUtils = new CsvUtils();
+        csvUtils.header("ID", "ユーザー名", "科目", "点数");
+        for (SubjectResultSearch item : result) {
+            List<String> row = new ArrayList<>();
+            row.add(String.valueOf(item.getId()));
+            row.add(item.getUserName());
+            row.add(item.getSubjectName());
+            row.add(String.valueOf(item.getScore()));
+
+            csvUtils.rows(row);
+        }
+
+        return csvUtils.export();
+    }
 }
