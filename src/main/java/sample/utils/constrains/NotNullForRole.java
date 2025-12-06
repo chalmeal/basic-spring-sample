@@ -16,7 +16,9 @@ import sample.types.user.UserRoleType;
 public @interface NotNullForRole {
     UserRoleType[] roles();
 
-    String message() default "値は必須です。";
+    String name() default "値";
+
+    String message() default "%sは必須です。";
 
     Class<?>[] groups() default {};
 

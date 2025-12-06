@@ -3,6 +3,7 @@ package sample.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,6 +23,7 @@ import sample.service.SubjectService;
 import sample.types.user.UserRoleType;
 import sample.utils.JwtUtils;
 import sample.utils.Pagination;
+import sample.utils.constrains.NotNullForRole;
 import sample.utils.csv.CsvExportUtils;
 import sample.utils.exception.CsvExportException;
 import sample.utils.exception.CsvImportException;
@@ -100,16 +102,17 @@ public class SubjectController {
     @GetMapping("/result")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> searchSubjectResult(
-            @RequestParam(name = "user_id", required = false) String userId,
+            @RequestParam(name = "user_id", required = false) @Valid @NotNullForRole(roles = {
+                    UserRoleType.USER }, name = "ユーザーID") String userId,
             @RequestParam(name = "subject_id", required = false) String subjectId,
             @RequestParam(name = "score_from", required = false) String scoreFrom,
             @RequestParam(name = "score_to", required = false) String scoreTo,
             @RequestParam(name = "page_size", required = true, defaultValue = "30") Integer pageSize,
             @RequestParam(name = "page_number", required = true, defaultValue = "1") Integer pageNumber) {
         // 一般ユーザーの場合は自分の科目結果のみ取得可能
-        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())) {
-            // TODO: 不正アクセス例外
-            userId = JwtUtils.getClaimValue("userId");
+        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !userId.equals(JwtUtils.getClaimValue("userId"))) {
+            throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
         }
         // 検索リクエストパラメータ
         SubjectResultSearchRequest request = SubjectResultSearchRequest.builder()
@@ -135,15 +138,16 @@ public class SubjectController {
     public ResponseEntity<?> exportSubjectResultsToCsv(@RequestBody @Valid SubjectResultSearchRequest request) {
         try {
             // 一般ユーザーの場合は自分の科目結果のみ取得可能
-            if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())) {
-                // TODO: 不正アクセス例外
-                request.setUserId(JwtUtils.getClaimValue("userId"));
+            if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                    && !request.getUserId().equals(JwtUtils.getClaimValue("userId"))) {
+                throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
             }
             request.setPageNumber(Pagination.pageNumberConvert(request.getPageSize(), request.getPageNumber()));
             byte[] csvData = subjectService.exportSubjectResultsToCsv(request);
 
             return CsvExportUtils.csvExportResponse(csvData, "科目成績.csv");
         } catch (CsvExportException e) {
+            // CSV出力エラー
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(e.getMessage()));
         }
@@ -165,11 +169,10 @@ public class SubjectController {
             // 一般ユーザーの場合は自分の科目結果のみ取得可能
             if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
                     && !userId.equals(JwtUtils.getClaimValue("userId"))) {
-                // TODO: 不正アクセス例外
-                userId = JwtUtils.getClaimValue("userId");
+                throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
             }
-
             subjectService.importSubjectResultsFromCsv(userId, request);
+
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (NotFoundException e) {
             // リソースが存在しない場合

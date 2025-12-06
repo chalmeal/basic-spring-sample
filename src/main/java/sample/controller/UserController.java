@@ -3,6 +3,7 @@ package sample.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +25,9 @@ import sample.dto.response.ErrorResponse;
 import sample.dto.response.user.UserSearchResponse;
 import sample.service.SecurityService;
 import sample.service.UserService;
+import sample.types.user.UserRoleType;
 import sample.utils.JwtUtils;
 import sample.utils.Pagination;
-import sample.utils.constrains.ValidAccess;
 import sample.utils.exception.ExistsResourceException;
 import sample.utils.exception.NotFoundException;
 
@@ -48,8 +49,13 @@ public class UserController {
      */
     @GetMapping("/{user_id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> getByUserid(@ValidAccess("userId") @PathVariable("user_id") String userId) {
+    public ResponseEntity<?> getByUserid(@PathVariable("user_id") String userId) {
         try {
+            // 一般ユーザーの場合は自分のユーザー情報のみ取得可能
+            if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                    && !userId.equals(JwtUtils.getClaimValue("userId"))) {
+                throw new AccessDeniedException("別ユーザーのユーザー情報は取得できません。");
+            }
             return ResponseEntity.ok().body(userService.getByUserId(userId));
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

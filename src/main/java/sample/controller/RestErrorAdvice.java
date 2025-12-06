@@ -39,6 +39,19 @@ public class RestErrorAdvice {
     }
 
     /**
+     * リクエストパラメータエラー処理(400)
+     * 
+     * @param ex 例外情報
+     * @return 400エラーレスポンス
+     */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<?> handleMethodValidationException(HandlerMethodValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getAllErrors().get(0)
+                        .getDefaultMessage()));
+    }
+
+    /**
      * リクエストパラメータ不足エラー処理(400)
      * 
      * @param ex 例外情報
@@ -71,20 +84,7 @@ public class RestErrorAdvice {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ErrorResponse("アクセス権限がありません。"));
-    }
-
-    /**
-     * JWTクレーム認可エラー処理(403)
-     * 
-     * @param ex 例外情報
-     * @return 403エラーレスポンス
-     */
-    @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<?> handleMethodValidationException(HandlerMethodValidationException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ErrorResponse(ex.getAllErrors().get(0)
-                        .getDefaultMessage()));
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
     /**
