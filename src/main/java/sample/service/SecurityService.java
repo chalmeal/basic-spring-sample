@@ -45,7 +45,7 @@ public class SecurityService {
      * @param userId ユーザーID
      */
     public void resetPassword(String email) {
-        Optional<User> user = userRepository.getByEmail(email);
+        Optional<User> user = userRepository.getUserByEmail(email);
         if (!user.isPresent()) {
             // 未登録のメールアドレスの場合はメールを送信せずに処理を中断
             log.warn("未登録のメールアドレスでパスワードリセット要求がありました。： {}", email);

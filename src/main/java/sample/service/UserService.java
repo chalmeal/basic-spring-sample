@@ -51,7 +51,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserGetResponse getByUserId(String userId) throws NotFoundException {
         // ユーザー取得
-        User user = userRepository.getByUserId(userId)
+        User user = userRepository.getUserByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("ユーザーが見つかりませんでした。", userId));
 
         return new UserGetResponse(user);
@@ -77,13 +77,13 @@ public class UserService {
                 .build();
 
         // ユーザー検索
-        List<User> result = userRepository.search(param);
+        List<User> result = userRepository.searchUser(param);
         List<UserSearchResponse> response = new ArrayList<UserSearchResponse>();
         for (User user : result) {
             response.add(new UserSearchResponse(user));
         }
         // 総件数取得
-        int totalCount = userRepository.count(param);
+        int totalCount = userRepository.countUserSearch(param);
 
         return pagination.paging(response, totalCount, request.getPageSize());
     }
@@ -101,7 +101,7 @@ public class UserService {
                     .email(request.getEmail())
                     .status(UserStatusType.TEMPORARY.getValue())
                     .build();
-            userRepository.registerTemporary(param);
+            userRepository.temporaryRegisterUser(param);
 
             String mailBody = String.format("""
                         仮登録が完了しました。\n
@@ -138,7 +138,7 @@ public class UserService {
                     .status(UserStatusType.REGISTERED.getValue())
                     .build();
 
-            userRepository.register(param);
+            userRepository.registerUser(param);
         } catch (DuplicateKeyException e) {
             // ユーザーIDが既に使用されている場合
             throw new ResourceExistsException("ユーザーIDが既に使用されています。", request.getUserId());

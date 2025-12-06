@@ -26,7 +26,7 @@ public interface UserRepository {
      * @return ユーザー情報
      */
     @Select
-    public Optional<User> getByUserId(String userId);
+    public Optional<User> getUserByUserId(String userId);
 
     /**
      * メールアドレスで取得
@@ -35,7 +35,7 @@ public interface UserRepository {
      * @return ユーザー情報
      */
     @Select
-    public Optional<User> getByEmail(String email);
+    public Optional<User> getUserByEmail(String email);
 
     /**
      * メールアドレスで取得
@@ -53,7 +53,7 @@ public interface UserRepository {
      * @return ユーザー一覧
      */
     @Select
-    public List<User> search(UserSearchParam param);
+    public List<User> searchUser(UserSearchParam param);
 
     /**
      * 総件数取得
@@ -62,7 +62,7 @@ public interface UserRepository {
      * @return 総件数
      */
     @Select
-    public int count(UserSearchParam param);
+    public int countUserSearch(UserSearchParam param);
 
     /**
      * ユーザー仮登録
@@ -71,7 +71,7 @@ public interface UserRepository {
      * @return 登録結果
      */
     @Insert(sqlFile = true)
-    public int registerTemporary(UserRegisterTemporaryParam param);
+    public int temporaryRegisterUser(UserRegisterTemporaryParam param);
 
     /**
      * ユーザー登録
@@ -80,6 +80,6 @@ public interface UserRepository {
      * @return 登録結果
      */
     @Update(sqlFile = true, sqlLog = SqlLogType.NONE)
-    public int register(UserRegisterParam param);
+    public int registerUser(UserRegisterParam param);
 
 }

@@ -164,7 +164,7 @@ public class SubjectService {
                 .validHeader(expectedHeaders).parse(columns -> {
                     SubjectResultCsvImportParam param = new SubjectResultCsvImportParam();
                     // ユーザーID
-                    Optional<User> user = userRepository.getByUserId(userId);
+                    Optional<User> user = userRepository.getUserByUserId(userId);
                     // 存在チェック
                     if (CsvImportUtils.isEmptyResource(user, userId, "ユーザーID")) {
                         param.setUserId(userId);

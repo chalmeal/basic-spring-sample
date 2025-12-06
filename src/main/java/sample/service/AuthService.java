@@ -35,7 +35,7 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.getByEmail(request.getEmail())
+        User user = userRepository.getUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UnAuthorizedException("メールアドレスまたはパスワードが違います。"));
 
         String hashedPassword = authRepository.getHashPasswordByEmail(request.getEmail());
