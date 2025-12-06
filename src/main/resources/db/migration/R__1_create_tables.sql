@@ -47,16 +47,16 @@ CREATE TABLE IF NOT EXISTS subjects (
 -- 科目別成績テーブル
 CREATE TABLE IF NOT EXISTS subject_results (
   id BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID'
-  , users_id BIGINT unsigned NOT NULL COMMENT 'ユーザーID'
+  , user_id VARCHAR(50) COMMENT 'ユーザーID'
   , subject_id BIGINT unsigned NOT NULL COMMENT '科目ID'
   , score INT NOT NULL COMMENT '得点'
   , created_at DATETIME NOT NULL COMMENT '登録日時'
   , updated_at DATETIME DEFAULT NULL COMMENT '更新日時'
   , deleted_at DATETIME DEFAULT NULL COMMENT '削除日時'
   , PRIMARY KEY (id)
-  , KEY idx_study_result_user (users_id)
+  , KEY idx_study_result_user (user_id)
   , CONSTRAINT fk_study_result_user
-      FOREIGN KEY (users_id) REFERENCES users(id)
+      FOREIGN KEY (user_id) REFERENCES users(user_id)
       ON DELETE CASCADE
   , CONSTRAINT fk_study_result_subject
       FOREIGN KEY (subject_id) REFERENCES subjects(id)

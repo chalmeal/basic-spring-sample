@@ -2,11 +2,14 @@ package sample.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import sample.dto.request.subject.SubjectResultCsvImportRequest;
 import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.dto.response.subject.SubjectFetchResponse;
 import sample.dto.response.subject.SubjectGetResponse;
@@ -16,9 +19,11 @@ import sample.entity.Subject;
 import sample.entity.SubjectResult;
 import sample.entity.SubjectResultSearch;
 import sample.repository.SubjectRepository;
+import sample.repository.query.subject.SubjectResultCsvImportParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
-import sample.utils.CsvUtils;
 import sample.utils.Pagination;
+import sample.utils.csv.CsvExportUtils;
+import sample.utils.csv.CsvImportUtils;
 import sample.utils.exception.NotFoundException;
 
 /** 科目サービス */
@@ -124,7 +129,7 @@ public class SubjectService {
         // 科目結果検索
         List<SubjectResultSearch> result = subjectRepository.searchSubjectResult(param);
 
-        CsvUtils csvUtils = new CsvUtils();
+        CsvExportUtils csvUtils = new CsvExportUtils();
         csvUtils.header("ID", "ユーザー名", "科目", "点数");
         for (SubjectResultSearch item : result) {
             List<String> row = new ArrayList<>();
@@ -137,5 +142,46 @@ public class SubjectService {
         }
 
         return csvUtils.export();
+    }
+
+    /**
+     * 科目結果CSV取込
+     * 
+     * @param request 科目結果CSV取込リクエスト
+     */
+    @Transactional
+    public void importSubjectResultsFromCsv(String userId, SubjectResultCsvImportRequest request) {
+        MultipartFile csvFile = request.getFile();
+        CsvImportUtils<SubjectResultCsvImportParam> csvUtils = new CsvImportUtils<SubjectResultCsvImportParam>();
+
+        // // CSVヘッダー検証
+        String[] expectedHeaders = { "科目ID", "点数" };
+        List<SubjectResultCsvImportParam> params = csvUtils.from(csvFile)
+                .validHeader(expectedHeaders).parse(columns -> {
+                    SubjectResultCsvImportParam param = new SubjectResultCsvImportParam();
+                    // ユーザーID
+                    param.setUserId(userId);
+
+                    // 科目ID
+                    String subjectId = columns[0];
+                    // 存在チェック
+                    Optional<Subject> subject = subjectRepository.getSubjectById(Long.parseLong(subjectId));
+                    if (CsvImportUtils.isEmptyResource(subject, expectedHeaders[0])) {
+                        param.setSubjectId(subjectId);
+                    }
+
+                    // 点数
+                    String score = columns[1];
+                    // 範囲チェック
+                    if (CsvImportUtils.isBetween(score, 0, 100, expectedHeaders[1])) {
+                        param.setScore(score);
+                    }
+
+                    return param;
+                });
+
+        // 科目結果CSV取込登録
+        // TODO: ユニーク制約エラーチェック
+        subjectRepository.insertSubjectResultForCsv(params);
     }
 }

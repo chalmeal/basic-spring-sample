@@ -1,4 +1,4 @@
-package sample.utils;
+package sample.utils.csv;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 
 import sample.utils.exception.CsvExportException;
 
-/** CSVユーティリティ */
+/** CSV出力ユーティリティ */
 @Component
-public class CsvUtils {
+public class CsvExportUtils {
     /** ヘッダー行 */
     private List<String> headers = new ArrayList<>();
     private List<List<String>> rows = new ArrayList<>();
@@ -25,7 +25,7 @@ public class CsvUtils {
      * @param columns カラム名配列
      * @return ヘッダー行リスト
      */
-    public CsvUtils header(String... columns) {
+    public CsvExportUtils header(String... columns) {
         for (String column : columns) {
             headers.add(column);
         }
@@ -39,7 +39,7 @@ public class CsvUtils {
      * @param data データリスト
      * @return データ行リスト
      */
-    public <T> CsvUtils rows(List<T> data) {
+    public <T> CsvExportUtils rows(List<T> data) {
         List<String> row = new ArrayList<>();
         for (T item : data) {
             row.add(item.toString());
@@ -50,7 +50,7 @@ public class CsvUtils {
     }
 
     /**
-     * CSVエクスポート
+     * CSV出力
      * 
      * @return CSVデータ(byte配列)
      */
@@ -74,11 +74,11 @@ public class CsvUtils {
     }
 
     /**
-     * CSVエクスポートレスポンス作成
+     * CSV出力レスポンス作成
      * 
      * @param csvData  CSVデータ(byte配列)
      * @param filename ファイル名
-     * @return CSVエクスポートレスポンス
+     * @return CSV出力レスポンス
      */
     public static ResponseEntity<byte[]> csvExportResponse(byte[] csvData, String filename) {
         // ファイル名をURLエンコード

@@ -16,7 +16,7 @@ FROM subject_results
     ON subject_results.subject_id = subjects.id
     AND subjects.deleted_at IS NULL
   INNER JOIN target_subject_users
-    ON subject_results.users_id = target_subject_users.id
+    ON subject_results.user_id = target_subject_users.user_id
 WHERE
   subject_results.deleted_at IS NULL
   /*%if param.subjectId != null*/

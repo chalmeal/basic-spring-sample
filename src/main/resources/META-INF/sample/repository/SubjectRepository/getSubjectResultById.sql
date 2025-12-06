@@ -1,6 +1,6 @@
 SELECT
   id,
-  users_id,
+  user_id,
   subject_id,
   score,
   created_at,
@@ -8,11 +8,14 @@ SELECT
   deleted_at
 FROM
   subject_results
+  INNER JOIN users
+    ON subject_results.user_id = users.id
+    AND users.deleted_at IS NULL
 WHERE
-  deleted_at IS NULL
+  subject_results.deleted_at IS NULL
   /*%if subjectResultId != null*/
-    AND id = /*subjectResultId*/0
+    AND subject_results.id = /*subjectResultId*/0
   /*%end*/
   /*%if userId != null*/
-    AND users_id = (SELECT id FROM users WHERE user_id = /* userId */'dummy')
+    AND subject_results.user_id = users.user_id = /* userId */'dummy'
   /*%end*/

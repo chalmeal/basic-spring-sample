@@ -3,6 +3,7 @@ package sample.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.seasar.doma.BatchInsert;
 import org.seasar.doma.Dao;
 import org.seasar.doma.Select;
 import org.seasar.doma.boot.ConfigAutowireable;
@@ -10,6 +11,7 @@ import org.seasar.doma.boot.ConfigAutowireable;
 import sample.entity.Subject;
 import sample.entity.SubjectResult;
 import sample.entity.SubjectResultSearch;
+import sample.repository.query.subject.SubjectResultCsvImportParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 
 /** 科目DAO */
@@ -61,5 +63,14 @@ public interface SubjectRepository {
      */
     @Select
     public int countSubjectResultSearch(SubjectResultSearchParam param);
+
+    /**
+     * 科目成績CSV取込登録
+     * 
+     * @param params 科目成績CSV取込パラメータ
+     * @return 登録結果
+     */
+    @BatchInsert(sqlFile = true)
+    public int[] insertSubjectResultForCsv(List<SubjectResultCsvImportParam> params);
 
 }
