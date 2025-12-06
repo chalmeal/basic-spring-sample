@@ -18,7 +18,9 @@ import sample.dto.response.subject.SubjectResultSearchResponse;
 import sample.entity.Subject;
 import sample.entity.SubjectResult;
 import sample.entity.SubjectResultSearch;
+import sample.entity.User;
 import sample.repository.SubjectRepository;
+import sample.repository.UserRepository;
 import sample.repository.query.subject.SubjectResultCsvImportParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 import sample.utils.Pagination;
@@ -32,6 +34,8 @@ import sample.utils.exception.NotFoundException;
 public class SubjectService {
     /** 科目リポジトリDI */
     private final SubjectRepository subjectRepository;
+    /** ユーザーリポジトリDI */
+    private final UserRepository userRepository;
 
     /**
      * IDで取得
@@ -160,13 +164,17 @@ public class SubjectService {
                 .validHeader(expectedHeaders).parse(columns -> {
                     SubjectResultCsvImportParam param = new SubjectResultCsvImportParam();
                     // ユーザーID
-                    param.setUserId(userId);
+                    Optional<User> user = userRepository.getByUserId(userId);
+                    // 存在チェック
+                    if (CsvImportUtils.isEmptyResource(user, userId, "ユーザーID")) {
+                        param.setUserId(userId);
+                    }
 
                     // 科目ID
                     String subjectId = columns[0];
                     // 存在チェック
                     Optional<Subject> subject = subjectRepository.getSubjectById(Long.parseLong(subjectId));
-                    if (CsvImportUtils.isEmptyResource(subject, expectedHeaders[0])) {
+                    if (CsvImportUtils.isEmptyResource(subject, subjectId, expectedHeaders[0])) {
                         param.setSubjectId(subjectId);
                     }
 

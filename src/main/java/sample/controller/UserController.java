@@ -2,7 +2,6 @@ package sample.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,15 +20,12 @@ import sample.dto.request.auth.PasswordChangeLoginAfterRequest;
 import sample.dto.request.user.UserRegisterRequest;
 import sample.dto.request.user.UserRegisterTemporaryRequest;
 import sample.dto.request.user.UserSearchRequest;
-import sample.dto.response.ErrorResponse;
 import sample.dto.response.user.UserSearchResponse;
 import sample.service.SecurityService;
 import sample.service.UserService;
 import sample.types.user.UserRoleType;
 import sample.utils.JwtUtils;
 import sample.utils.Pagination;
-import sample.utils.exception.ExistsResourceException;
-import sample.utils.exception.NotFoundException;
 
 /** ユーザーコントローラ */
 @RestController
@@ -50,17 +46,12 @@ public class UserController {
     @GetMapping("/{user_id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getByUserid(@PathVariable("user_id") String userId) {
-        try {
-            // 一般ユーザーの場合は自分のユーザー情報のみ取得可能
-            if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
-                    && !userId.equals(JwtUtils.getClaimValue("userId"))) {
-                throw new AccessDeniedException("別ユーザーのユーザー情報は取得できません。");
-            }
-            return ResponseEntity.ok().body(userService.getByUserId(userId));
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse(e.getMessage()));
+        // 一般ユーザーの場合は自分のユーザー情報のみ取得可能
+        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !userId.equals(JwtUtils.getClaimValue("userId"))) {
+            throw new AccessDeniedException("別ユーザーのユーザー情報は取得できません。");
         }
+        return ResponseEntity.ok().body(userService.getByUserId(userId));
     }
 
     /**
@@ -104,20 +95,8 @@ public class UserController {
      */
     @PostMapping("/register/temporary")
     public ResponseEntity<?> registerTemporary(@RequestBody @Valid UserRegisterTemporaryRequest request) {
-        try {
-            userService.registerTemporaryUser(request);
-
-            // ユーザー仮登録成功
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (ExistsResourceException e) {
-            // メールアドレス重複
-            // セキュリティの観点から、ユーザーに明示的にエラーとはしない
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (MailSendException e) {
-            // メール送信に失敗
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse(e.getMessage()));
-        }
+        userService.registerTemporaryUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -130,14 +109,8 @@ public class UserController {
     @PutMapping("/register/{email}")
     public ResponseEntity<?> register(@PathVariable("email") String email,
             @RequestBody @Valid UserRegisterRequest request) {
-        try {
-            userService.registerUser(email, request);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (ExistsResourceException e) {
-            // ユーザーIDが既に使用されている場合の処理
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getMessage()));
-        }
+        userService.registerUser(email, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -149,15 +122,9 @@ public class UserController {
     @PostMapping("/password/change")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordChangeLoginAfterRequest request) {
-        try {
-            String userId = JwtUtils.getClaimValue("userId");
-            securityService.changePassword(request, userId);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            // 確認用パスワードと新しいパスワードが一致しない場合
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getMessage()));
-        }
+        String userId = JwtUtils.getClaimValue("userId");
+        securityService.changePassword(request, userId);
+        return ResponseEntity.ok().build();
     }
 
 }

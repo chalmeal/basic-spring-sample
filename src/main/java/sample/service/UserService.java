@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.mail.MailException;
-import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +24,8 @@ import sample.types.user.UserRoleType;
 import sample.types.user.UserStatusType;
 import sample.utils.MailUtils;
 import sample.utils.Pagination;
-import sample.utils.exception.ExistsResourceException;
 import sample.utils.exception.NotFoundException;
+import sample.utils.exception.ResourceExistsException;
 
 /** ユーザーサービス */
 @Service
@@ -119,11 +117,6 @@ public class UserService {
         } catch (DuplicateKeyException e) {
             // メールアドレスが既に登録済みの場合はメールを送信せずに処理を中断
             log.warn("既に登録済みのメールアドレスが仮登録を行いました。: {}", request.getEmail());
-            throw new ExistsResourceException();
-        } catch (MailException e) {
-            // メール送信に失敗した場合
-            log.error("メール送信に失敗しました。", e);
-            throw new MailSendException("メール送信に失敗しました。", e);
         }
     }
 
@@ -148,7 +141,7 @@ public class UserService {
             userRepository.register(param);
         } catch (DuplicateKeyException e) {
             // ユーザーIDが既に使用されている場合
-            throw new ExistsResourceException("ユーザーIDが既に使用されています。", request.getUserId());
+            throw new ResourceExistsException("ユーザーIDが既に使用されています。", request.getUserId());
         }
     }
 

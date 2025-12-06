@@ -1,8 +1,6 @@
 package sample.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,20 +8,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import sample.dto.request.auth.LoginRequest;
 import sample.dto.request.auth.PasswordChangeRequest;
 import sample.dto.request.auth.PasswordResetRequest;
-import sample.dto.response.ErrorResponse;
 import sample.service.AuthService;
 import sample.service.SecurityService;
-import sample.utils.exception.NotFoundException;
 
 /** 認証コントローラ */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Slf4j
 public class AuthController {
     /** 認証サービスDI */
     private final AuthService authService;
@@ -49,17 +43,8 @@ public class AuthController {
      */
     @PostMapping("/password/reset")
     public ResponseEntity<?> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
-        try {
-            securityService.resetPassword(request.getEmail());
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            // セキュリティの観点から、ユーザーに明示的にエラーとはしない
-            return ResponseEntity.ok().build();
-        } catch (MailSendException e) {
-            // メール送信に失敗
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse(e.getMessage()));
-        }
+        securityService.resetPassword(request.getEmail());
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -70,17 +55,7 @@ public class AuthController {
      */
     @PostMapping("/password/change")
     public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordChangeRequest request) {
-        try {
-            securityService.changePassword(request);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            // 無効なパスワードリセットリクエスト
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            // 確認用パスワードと新しいパスワードが一致しない場合
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getMessage()));
-        }
+        securityService.changePassword(request);
+        return ResponseEntity.ok().build();
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 import sample.dto.response.ErrorResponse;
+import sample.utils.exception.BadRequestException;
+import sample.utils.exception.NotFoundException;
 import sample.utils.exception.UnAuthorizedException;
 
 /** コントローラー共通ユーティリティ */
@@ -64,6 +66,18 @@ public class RestErrorAdvice {
     }
 
     /**
+     * 不正なリクエストエラー処理(400)
+     * 
+     * @param ex 例外情報
+     * @return 400エラーレスポンス
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    /**
      * 認証エラー処理(401)
      * 
      * @param ex 例外情報
@@ -88,7 +102,7 @@ public class RestErrorAdvice {
     }
 
     /**
-     * リソース未検出エラー処理(404)
+     * APIリソース未検出エラー処理(404)
      * 
      * @param ex 例外情報
      * @return 404エラーレスポンス
@@ -97,6 +111,18 @@ public class RestErrorAdvice {
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse("リソースが見つかりません。"));
+    }
+
+    /**
+     * リソース未検出エラー処理(404)
+     * 
+     * @param ex 例外情報
+     * @return 404エラーレスポンス
+     */
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
     /**

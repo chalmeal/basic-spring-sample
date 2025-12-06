@@ -21,7 +21,7 @@ import sample.repository.AuthRepository;
 import sample.repository.UserRepository;
 import sample.utils.DateUtils;
 import sample.utils.MailUtils;
-import sample.utils.exception.NotFoundException;
+import sample.utils.exception.BadRequestException;
 import sample.utils.exception.UnAuthorizedException;
 
 /** パスワードハッシュサービス */
@@ -46,9 +46,10 @@ public class SecurityService {
      */
     public void resetPassword(String email) {
         Optional<User> user = userRepository.getByEmail(email);
-        if (user.isEmpty()) {
+        if (!user.isPresent()) {
+            // 未登録のメールアドレスの場合はメールを送信せずに処理を中断
             log.warn("未登録のメールアドレスでパスワードリセット要求がありました。： {}", email);
-            throw new NotFoundException();
+            return;
         }
 
         String token = UUID.randomUUID().toString();
@@ -73,16 +74,17 @@ public class SecurityService {
      * @param request パスワード変更リクエスト
      */
     public void changePassword(PasswordChangeRequest request) {
-        PasswordResetInfo passwordResetInfo = authRepository.getPasswordResetInfoByToken(request.getToken())
-                .orElseThrow(() -> new NotFoundException("無効なパスワードリセットトークンです。"));
         // 確認用パスワードと新しいパスワードの一致チェック
         if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
-            throw new IllegalArgumentException("新しいパスワードと確認用パスワードが一致しません。");
+            throw new BadRequestException("新しいパスワードと確認用パスワードが一致しません。");
         }
+
         // トークンの有効性チェック
+        PasswordResetInfo passwordResetInfo = authRepository.getPasswordResetInfoByToken(request.getToken())
+                .orElseThrow(() -> new BadRequestException("無効なパスワードリセットトークンです。"));
         if (passwordResetInfo.getUsed()
                 || DateUtils.parseDateTime(passwordResetInfo.getExpiresAt()).isBefore(LocalDateTime.now())) {
-            throw new NotFoundException("リンクが無効です。再度パスワードリセットを行ってください。");
+            throw new BadRequestException("無効なパスワードリセットトークンです。");
         }
 
         // パスワードリセット情報を使用済みに設定
@@ -102,7 +104,7 @@ public class SecurityService {
     public void changePassword(PasswordChangeLoginAfterRequest request, String userId) {
         // 確認用パスワードと新しいパスワードの一致チェック
         if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
-            throw new IllegalArgumentException("新しいパスワードと確認用パスワードが一致しません。");
+            throw new BadRequestException("新しいパスワードと確認用パスワードが一致しません。");
         }
 
         // 現在のパスワード認証

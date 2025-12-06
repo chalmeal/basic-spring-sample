@@ -72,12 +72,10 @@ public class CsvImportUtils<T> {
      */
     public List<T> parse(Function<String[], T> mapper) {
         List<T> result = new ArrayList<>();
-
         try (InputStream is = this.csvFile.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
             String line;
             boolean isHeader = true;
-
             while ((line = reader.readLine()) != null) {
                 // ヘッダー行をスキップ
                 if (isHeader) {
@@ -89,8 +87,7 @@ public class CsvImportUtils<T> {
                 T item = mapper.apply(columns);
                 result.add(item);
             }
-
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException("CSVのパースに失敗しました。", e);
         }
 
@@ -105,8 +102,10 @@ public class CsvImportUtils<T> {
      * @return 存在する場合はtrue
      * @throws NotFoundException リソースが存在しない場合の例外
      */
-    public static <T> boolean isEmptyResource(Optional<T> resource, String column) throws NotFoundException {
-        resource.orElseThrow(() -> new NotFoundException(String.format("%sが見つかりませんでした。", column), column));
+    public static <T> boolean isEmptyResource(Optional<T> resource, String key, String column)
+            throws NotFoundException {
+        resource.orElseThrow(
+                () -> new NotFoundException(String.format("%sが見つかりませんでした。", column), key));
 
         return true;
     }

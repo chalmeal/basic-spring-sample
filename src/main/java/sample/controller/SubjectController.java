@@ -18,16 +18,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sample.dto.request.subject.SubjectResultCsvImportRequest;
 import sample.dto.request.subject.SubjectResultSearchRequest;
-import sample.dto.response.ErrorResponse;
 import sample.service.SubjectService;
 import sample.types.user.UserRoleType;
 import sample.utils.JwtUtils;
 import sample.utils.Pagination;
 import sample.utils.constrains.NotNullForRole;
 import sample.utils.csv.CsvExportUtils;
-import sample.utils.exception.CsvExportException;
-import sample.utils.exception.CsvImportException;
-import sample.utils.exception.NotFoundException;
 
 /** 科目コントローラー */
 @RestController
@@ -46,12 +42,7 @@ public class SubjectController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getSubjectById(@PathVariable("id") Long id) {
-        try {
-            return ResponseEntity.ok().body(subjectService.getSubjectById(id));
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok().body(subjectService.getSubjectById(id));
     }
 
     /**
@@ -74,18 +65,13 @@ public class SubjectController {
     @GetMapping("/result/{subject_result_id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getSubjectResultById(@PathVariable("subject_result_id") Long subjectResultId) {
-        try {
-            String userId = JwtUtils.getClaimValue("userId");
-            // 管理者の場合は全ユーザーの科目結果取得可のため、ユーザーIDをnullに設定
-            if (JwtUtils.getClaimValue("role").equals(UserRoleType.ADMIN.getRoleName())) {
-                userId = null;
-            }
-
-            return ResponseEntity.ok().body(subjectService.getSubjectResultById(subjectResultId, userId));
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse(e.getMessage()));
+        String userId = JwtUtils.getClaimValue("userId");
+        // 管理者の場合は全ユーザーの科目結果取得可のため、ユーザーIDをnullに設定
+        if (JwtUtils.getClaimValue("role").equals(UserRoleType.ADMIN.getRoleName())) {
+            userId = null;
         }
+
+        return ResponseEntity.ok().body(subjectService.getSubjectResultById(subjectResultId, userId));
     }
 
     /**
@@ -136,21 +122,15 @@ public class SubjectController {
     @PostMapping("/csv/export")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> exportSubjectResultsToCsv(@RequestBody @Valid SubjectResultSearchRequest request) {
-        try {
-            // 一般ユーザーの場合は自分の科目結果のみ取得可能
-            if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
-                    && !request.getUserId().equals(JwtUtils.getClaimValue("userId"))) {
-                throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
-            }
-            request.setPageNumber(Pagination.pageNumberConvert(request.getPageSize(), request.getPageNumber()));
-            byte[] csvData = subjectService.exportSubjectResultsToCsv(request);
-
-            return CsvExportUtils.csvExportResponse(csvData, "科目成績.csv");
-        } catch (CsvExportException e) {
-            // CSV出力エラー
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse(e.getMessage()));
+        // 一般ユーザーの場合は自分の科目結果のみ取得可能
+        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !request.getUserId().equals(JwtUtils.getClaimValue("userId"))) {
+            throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
         }
+        request.setPageNumber(Pagination.pageNumberConvert(request.getPageSize(), request.getPageNumber()));
+        byte[] csvData = subjectService.exportSubjectResultsToCsv(request);
+
+        return CsvExportUtils.csvExportResponse(csvData, "科目成績.csv");
     }
 
     /**
@@ -165,24 +145,14 @@ public class SubjectController {
     public ResponseEntity<?> importSubjectResultsFromCsv(
             @PathVariable("user_id") String userId,
             @Valid @ModelAttribute SubjectResultCsvImportRequest request) {
-        try {
-            // 一般ユーザーの場合は自分の科目結果のみ取得可能
-            if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
-                    && !userId.equals(JwtUtils.getClaimValue("userId"))) {
-                throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
-            }
-            subjectService.importSubjectResultsFromCsv(userId, request);
-
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (NotFoundException e) {
-            // リソースが存在しない場合
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getMessage()));
-        } catch (CsvImportException e) {
-            // CSV取込エラー
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getMessage()));
+        // 一般ユーザーの場合は自分の科目結果のみ取得可能
+        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !userId.equals(JwtUtils.getClaimValue("userId"))) {
+            throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
         }
+        subjectService.importSubjectResultsFromCsv(userId, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }
