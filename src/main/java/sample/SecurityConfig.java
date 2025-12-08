@@ -31,6 +31,7 @@ public class SecurityConfig {
             authz
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/user/register/**").permitAll()
+                    .requestMatchers("/api/system/health").permitAll()
                     .requestMatchers("/api/**").authenticated()
                     .anyRequest().permitAll();
         });
