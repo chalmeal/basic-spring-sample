@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -86,8 +88,9 @@ public class CsvExportUtils {
                 .replace("+", "%20");
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=\"" + encodedFilename + "\"")
-                .header("Content-Type", "text/csv; charset=UTF-8")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFilename)
+                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
                 .body(csvData);
     }
 
