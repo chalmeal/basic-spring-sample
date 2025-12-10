@@ -1,4 +1,4 @@
-package sample.batch.system.healthCheck;
+package sample.batch.subject.monthlyResult;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -11,25 +11,25 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import lombok.RequiredArgsConstructor;
 
-/** ヘルスチェックジョブ設定 */
+/** 科目別月次成績集計ジョブ設定 */
 @Configuration
 @RequiredArgsConstructor
-public class HealthCheckJobConfig {
+public class SubjectMonthlyJobConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
-    private final HealthCheckTasklet tasklet;
+    private final SubjectMonthlyResultTasklet tasklet;
 
     @Bean
-    public Step healthCheckStep() {
-        return new StepBuilder("healthCheckStep", jobRepository)
+    public Step subjectMonthlyResultStep() {
+        return new StepBuilder("subjectMonthlyResultStep", jobRepository)
                 .tasklet(tasklet, tx)
                 .build();
     }
 
-    @Bean(name = "healthCheckJob")
-    public Job healthCheckJob() {
-        return new JobBuilder("healthCheckJob", jobRepository)
-                .start(healthCheckStep())
+    @Bean(name = "subjectMonthlyResultJob")
+    public Job subjectMonthlyResultJob() {
+        return new JobBuilder("subjectMonthlyResultJob", jobRepository)
+                .start(subjectMonthlyResultStep())
                 .build();
     }
 }

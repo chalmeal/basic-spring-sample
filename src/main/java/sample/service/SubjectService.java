@@ -1,5 +1,6 @@
 package sample.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import sample.entity.User;
 import sample.repository.SubjectRepository;
 import sample.repository.UserRepository;
 import sample.repository.query.subject.SubjectResultCsvImportParam;
+import sample.repository.query.subject.SubjectResultMonthlyAggregateGetParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 import sample.utils.Pagination;
 import sample.utils.csv.CsvExportUtils;
@@ -158,7 +160,7 @@ public class SubjectService {
         MultipartFile csvFile = request.getFile();
         CsvImportUtils<SubjectResultCsvImportParam> csvUtils = new CsvImportUtils<SubjectResultCsvImportParam>();
 
-        // // CSVヘッダー検証
+        // CSVヘッダー検証
         String[] expectedHeaders = { "科目ID", "点数" };
         List<SubjectResultCsvImportParam> params = csvUtils.from(csvFile)
                 .validHeader(expectedHeaders).parse(columns -> {
@@ -191,5 +193,21 @@ public class SubjectService {
         // 科目結果CSV取込登録
         // TODO: ユニーク制約エラーチェック
         subjectRepository.insertSubjectResultForCsv(params);
+    }
+
+    /**
+     * 科目別月次成績集計
+     * 
+     * @param prevMonth 集計対象月の前月
+     */
+    @Transactional
+    public void aggregateMonthlySubjectResults(LocalDate prevMonth) {
+        // 科目別月次成績集計取得パラメータ設定
+        SubjectResultMonthlyAggregateGetParam param = SubjectResultMonthlyAggregateGetParam.builder()
+                .year(prevMonth.getYear())
+                .month(prevMonth.getMonthValue()).build();
+
+        // 科目別月次成績集計登録
+        subjectRepository.insertMonthlySubjectResult(param);
     }
 }

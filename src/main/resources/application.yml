@@ -54,6 +54,8 @@ spring:
       max-request-size: 10MB
 
   batch:
+    job:
+      enabled: false
     jdbc:
       initialize-schema: always
 
@@ -68,4 +70,8 @@ batch:
     system:
       health-check:
         cron: "0 0/1 * * * *"  # 毎分
+        enabled: true
+    subject:
+      monthly-result:
+        cron: "0 0 1 1 * *"  # 毎月1日午前0時
         enabled: true

@@ -1,4 +1,4 @@
-package sample.batch.system.healthCheck;
+package sample.batch.subject.monthlyResult;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionException;
@@ -11,24 +11,24 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-/** ヘルスチェックスケジューラ */
+/** 科目別月次成績集計スケジューラ */
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(value = "batch.scheduling.system.health-check.enabled")
-public class HealthCheckScheduler {
+@ConditionalOnProperty(value = "batch.scheduling.subject.monthly-result.enabled")
+public class SubjectMonthlyResultScheduler {
     private final JobLauncher jobLauncher;
-    @Qualifier("healthCheckJob")
-    private final Job healthCheckJob;
+    @Qualifier("subjectMonthlyResultJob")
+    private final Job subjectMonthlyResultJob;
 
     /**
-     * ヘルスチェックジョブ
-     * 実行単位：毎分
+     * 科目別月次成績集計ジョブ
+     * 実行単位：毎月1日0時0分
      * 
      * @throws JobExecutionException ジョブ実行例外
      */
-    @Scheduled(cron = "${batch.scheduling.system.health-check.cron}")
+    @Scheduled(cron = "${batch.scheduling.subject.monthly-result.cron}")
     public void run() throws JobExecutionException {
-        jobLauncher.run(healthCheckJob,
+        jobLauncher.run(subjectMonthlyResultJob,
                 new JobParametersBuilder()
                         .addLong("timestamp", System.currentTimeMillis())
                         .toJobParameters());

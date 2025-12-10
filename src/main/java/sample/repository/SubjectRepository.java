@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.seasar.doma.BatchInsert;
 import org.seasar.doma.Dao;
+import org.seasar.doma.Insert;
 import org.seasar.doma.Select;
 import org.seasar.doma.boot.ConfigAutowireable;
 
@@ -12,6 +13,7 @@ import sample.entity.Subject;
 import sample.entity.SubjectResult;
 import sample.entity.SubjectResultSearch;
 import sample.repository.query.subject.SubjectResultCsvImportParam;
+import sample.repository.query.subject.SubjectResultMonthlyAggregateGetParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 
 /** 科目DAO */
@@ -72,5 +74,14 @@ public interface SubjectRepository {
      */
     @BatchInsert(sqlFile = true)
     public int[] insertSubjectResultForCsv(List<SubjectResultCsvImportParam> params);
+
+    /**
+     * 科目別月次成績集計登録
+     * 
+     * @param param 科目別月次成績集計結果取得クエリパラメータ
+     * @return 登録結果
+     */
+    @Insert(sqlFile = true)
+    public int insertMonthlySubjectResult(SubjectResultMonthlyAggregateGetParam param);
 
 }
