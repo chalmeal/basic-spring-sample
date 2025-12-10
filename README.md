@@ -9,6 +9,7 @@
 |　　　├── main
 |     |     ├── java
 |     |     |     └── sample
+|     |     |            ├── batch                              # バッチ
 |     |     |            ├── controller                         # プレゼンテーション層
 |     |     |            ├── dto                                # DTO
 |     |     |            ├── entity                             # エンティティ層

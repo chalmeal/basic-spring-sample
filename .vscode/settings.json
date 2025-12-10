@@ -1,0 +1,5 @@
+{
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.compiler.problem.missingNonNullAnnotation": "ignore",
+    "java.compiler.problem.nullSpecViolation": "ignore"
+}

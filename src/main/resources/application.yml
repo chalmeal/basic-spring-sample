@@ -53,7 +53,19 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  batch:
+    jdbc:
+      initialize-schema: always
+
 logging:
   level:
     org.seasar.doma: DEBUG
     org.flywaydb: INFO
+
+batch:
+  # バッチのスケジュール設定を定義
+  scheduling:
+    system:
+      health-check:
+        cron: "0 0/1 * * * *"  # 毎分
+        enabled: true
