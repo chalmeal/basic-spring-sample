@@ -170,12 +170,16 @@ public class SubjectController {
     public ResponseEntity<?> searchSubjectResultMonthly(
             @RequestParam(name = "subject_id", required = false) Long subjectId,
             @RequestParam(name = "year", required = false) Integer year,
-            @RequestParam(name = "month", required = false) Integer month) {
+            @RequestParam(name = "month", required = false) Integer month,
+            @RequestParam(name = "page_size", required = true, defaultValue = "30") Integer pageSize,
+            @RequestParam(name = "page_number", required = true, defaultValue = "1") Integer pageNumber) {
         // 検索リクエストパラメータ
         SubjectResultMonthlySearchRequest request = SubjectResultMonthlySearchRequest.builder()
                 .subjectId(subjectId)
                 .year(year)
                 .month(month)
+                .pageSize(pageSize)
+                .pageNumber(Pagination.pageNumberConvert(pageSize, pageNumber))
                 .build();
 
         return ResponseEntity.ok().body(subjectService.searchMonthlySubjectResult(request));

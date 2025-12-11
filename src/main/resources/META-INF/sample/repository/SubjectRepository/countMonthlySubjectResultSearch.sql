@@ -1,10 +1,5 @@
 SELECT
-  monthly_subject_results.year,
-  monthly_subject_results.month,
-  subjects.name AS subject_name,
-  monthly_subject_results.max_score,
-  monthly_subject_results.min_score,
-  monthly_subject_results.avg_score
+  count(*)
 FROM monthly_subject_results
   INNER JOIN subjects
     ON monthly_subject_results.subject_id = subjects.id
@@ -24,4 +19,3 @@ ORDER BY
   monthly_subject_results.year DESC,
   monthly_subject_results.month DESC,
   monthly_subject_results.subject_id ASC
-LIMIT /* param.pageSize */30 OFFSET /* param.pageNumber */0;

@@ -81,6 +81,15 @@ public interface SubjectRepository {
     public List<SubjectResultMonthlySearch> searchMonthlySubjectResult(SubjectResultMonthlySearchParam param);
 
     /**
+     * 科目別月次成績集計検索件数取得
+     * 
+     * @param param 科目別月次成績集計検索パラメータ
+     * @return 科目別月次成績集計件数
+     */
+    @Select
+    public int countMonthlySubjectResultSearch(SubjectResultMonthlySearchParam param);
+
+    /**
      * ユーザー別月次成績集計検索
      * 
      * @param param ユーザー別月次成績集計検索パラメータ

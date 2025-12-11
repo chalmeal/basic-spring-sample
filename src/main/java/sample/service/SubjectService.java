@@ -211,13 +211,16 @@ public class SubjectService {
      * @return 科目別月次成績集計リスト
      */
     @Transactional(readOnly = true)
-    public List<SubjectResultMonthlySearchResponse> searchMonthlySubjectResult(
+    public Pagination<SubjectResultMonthlySearchResponse> searchMonthlySubjectResult(
             SubjectResultMonthlySearchRequest request) {
+        Pagination<SubjectResultMonthlySearchResponse> pagination = new Pagination<SubjectResultMonthlySearchResponse>();
         // 科目結果検索パラメータ設定
         SubjectResultMonthlySearchParam param = SubjectResultMonthlySearchParam.builder()
                 .subjectId(request.getSubjectId())
                 .year(request.getYear())
                 .month(request.getMonth())
+                .pageSize(request.getPageSize())
+                .pageNumber(request.getPageNumber())
                 .build();
         // 科目結果検索
         List<SubjectResultMonthlySearch> result = subjectRepository.searchMonthlySubjectResult(param);
@@ -225,8 +228,9 @@ public class SubjectService {
         for (SubjectResultMonthlySearch subjectResultMonthly : result) {
             response.add(new SubjectResultMonthlySearchResponse(subjectResultMonthly));
         }
+        int totalCount = subjectRepository.countMonthlySubjectResultSearch(param);
 
-        return response;
+        return pagination.paging(response, totalCount, request.getPageSize());
     }
 
     /**
@@ -260,6 +264,8 @@ public class SubjectService {
                 .userId(request.getUserId())
                 .year(request.getYear())
                 .month(request.getMonth())
+                .pageSize(request.getPageSize())
+                .pageNumber(request.getPageNumber())
                 .build();
         // 科目結果検索
         List<SubjectResultUserMonthlySearch> result = subjectRepository.searchMonthlySubjectUserResult(param);

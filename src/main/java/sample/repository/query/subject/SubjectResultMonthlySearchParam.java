@@ -15,4 +15,10 @@ public class SubjectResultMonthlySearchParam {
 
     /** 月 */
     private Integer month;
+
+    /** ページサイズ */
+    private Integer pageSize;
+
+    /** ページ番号 */
+    private Integer pageNumber;
 }

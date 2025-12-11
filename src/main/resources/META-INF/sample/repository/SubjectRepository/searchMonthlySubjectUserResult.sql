@@ -23,4 +23,5 @@ ORDER BY
   monthly_user_subject_results.year DESC,
   monthly_user_subject_results.month DESC,
   monthly_user_subject_results.total_score DESC,
-  monthly_user_subject_results.user_id ASC;
+  monthly_user_subject_results.user_id ASC
+LIMIT /* param.pageSize */30 OFFSET /* param.pageNumber */0;
