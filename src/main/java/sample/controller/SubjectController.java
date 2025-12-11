@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sample.dto.request.subject.SubjectResultCsvImportRequest;
+import sample.dto.request.subject.SubjectResultMonthlySearchRequest;
 import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.service.SubjectService;
 import sample.types.user.UserRoleType;
@@ -153,6 +154,30 @@ public class SubjectController {
         subjectService.importSubjectResultsFromCsv(userId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * 科目別月次成績集計検索
+     * 
+     * @param subjectId 科目ID
+     * @param year      年
+     * @param month     月
+     * @return 科目別月次成績集計リスト
+     */
+    @GetMapping("/result/monthly")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> searchSubjectResultMonthly(
+            @RequestParam(name = "subject_id", required = false) Long subjectId,
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "month", required = false) Integer month) {
+        // 検索リクエストパラメータ
+        SubjectResultMonthlySearchRequest request = SubjectResultMonthlySearchRequest.builder()
+                .subjectId(subjectId)
+                .year(year)
+                .month(month)
+                .build();
+
+        return ResponseEntity.ok().body(subjectService.searchMonthlySubjectResult(request));
     }
 
 }

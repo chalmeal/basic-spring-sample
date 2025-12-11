@@ -11,19 +11,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import sample.dto.request.subject.SubjectResultCsvImportRequest;
+import sample.dto.request.subject.SubjectResultMonthlySearchRequest;
 import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.dto.response.subject.SubjectFetchResponse;
 import sample.dto.response.subject.SubjectGetResponse;
 import sample.dto.response.subject.SubjectResultGetResponse;
+import sample.dto.response.subject.SubjectResultMonthlySearchResponse;
 import sample.dto.response.subject.SubjectResultSearchResponse;
 import sample.entity.Subject;
 import sample.entity.SubjectResult;
+import sample.entity.SubjectResultMonthlySearch;
 import sample.entity.SubjectResultSearch;
 import sample.entity.User;
 import sample.repository.SubjectRepository;
 import sample.repository.UserRepository;
 import sample.repository.query.subject.SubjectResultCsvImportParam;
-import sample.repository.query.subject.SubjectResultMonthlyAggregateGetParam;
+import sample.repository.query.subject.SubjectResultMonthlyGetParam;
+import sample.repository.query.subject.SubjectResultMonthlySearchParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 import sample.utils.Pagination;
 import sample.utils.csv.CsvExportUtils;
@@ -203,11 +207,36 @@ public class SubjectService {
     @Transactional
     public void aggregateMonthlySubjectResults(LocalDate prevMonth) {
         // 科目別月次成績集計取得パラメータ設定
-        SubjectResultMonthlyAggregateGetParam param = SubjectResultMonthlyAggregateGetParam.builder()
+        SubjectResultMonthlyGetParam param = SubjectResultMonthlyGetParam.builder()
                 .year(prevMonth.getYear())
                 .month(prevMonth.getMonthValue()).build();
 
         // 科目別月次成績集計登録
         subjectRepository.insertMonthlySubjectResult(param);
+    }
+
+    /**
+     * 科目別月次成績集計検索
+     * 
+     * @param request 科目別月次成績集計検索リクエスト
+     * @return 科目別月次成績集計リスト
+     */
+    @Transactional(readOnly = true)
+    public List<SubjectResultMonthlySearchResponse> searchMonthlySubjectResult(
+            SubjectResultMonthlySearchRequest request) {
+        // 科目結果検索パラメータ設定
+        SubjectResultMonthlySearchParam param = SubjectResultMonthlySearchParam.builder()
+                .subjectId(request.getSubjectId())
+                .year(request.getYear())
+                .month(request.getMonth())
+                .build();
+        // 科目結果検索
+        List<SubjectResultMonthlySearch> result = subjectRepository.searchMonthlySubjectResult(param);
+        List<SubjectResultMonthlySearchResponse> response = new ArrayList<SubjectResultMonthlySearchResponse>();
+        for (SubjectResultMonthlySearch subjectResultMonthly : result) {
+            response.add(new SubjectResultMonthlySearchResponse(subjectResultMonthly));
+        }
+
+        return response;
     }
 }

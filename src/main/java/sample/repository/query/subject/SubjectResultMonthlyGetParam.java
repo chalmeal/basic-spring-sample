@@ -3,10 +3,10 @@ package sample.repository.query.subject;
 import lombok.Builder;
 import lombok.Getter;
 
-/** 科目別月次成績集計結果取得クエリパラメータ */
+/** 科目別月次成績集計取得クエリパラメータ */
 @Getter
 @Builder
-public class SubjectResultMonthlyAggregateGetParam {
+public class SubjectResultMonthlyGetParam {
     /** 年度 */
     private int year;
 

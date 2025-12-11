@@ -11,9 +11,11 @@ import org.seasar.doma.boot.ConfigAutowireable;
 
 import sample.entity.Subject;
 import sample.entity.SubjectResult;
+import sample.entity.SubjectResultMonthlySearch;
 import sample.entity.SubjectResultSearch;
 import sample.repository.query.subject.SubjectResultCsvImportParam;
-import sample.repository.query.subject.SubjectResultMonthlyAggregateGetParam;
+import sample.repository.query.subject.SubjectResultMonthlyGetParam;
+import sample.repository.query.subject.SubjectResultMonthlySearchParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 
 /** 科目DAO */
@@ -67,6 +69,15 @@ public interface SubjectRepository {
     public int countSubjectResultSearch(SubjectResultSearchParam param);
 
     /**
+     * 科目別月次成績集計検索
+     * 
+     * @param param 科目別月次成績集計検索パラメータ
+     * @return 科目別月次成績集計リスト
+     */
+    @Select
+    public List<SubjectResultMonthlySearch> searchMonthlySubjectResult(SubjectResultMonthlySearchParam param);
+
+    /**
      * 科目成績CSV取込登録
      * 
      * @param params 科目成績CSV取込パラメータ
@@ -82,6 +93,6 @@ public interface SubjectRepository {
      * @return 登録結果
      */
     @Insert(sqlFile = true)
-    public int insertMonthlySubjectResult(SubjectResultMonthlyAggregateGetParam param);
+    public int insertMonthlySubjectResult(SubjectResultMonthlyGetParam param);
 
 }
