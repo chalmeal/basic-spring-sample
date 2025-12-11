@@ -13,11 +13,13 @@ import sample.entity.Subject;
 import sample.entity.SubjectResult;
 import sample.entity.SubjectResultMonthlySearch;
 import sample.entity.SubjectResultSearch;
+import sample.entity.SubjectResultUserMonthlySearch;
 import sample.repository.query.subject.SubjectResultCsvImportParam;
 import sample.repository.query.subject.SubjectResultMonthlyGetParam;
 import sample.repository.query.subject.SubjectResultMonthlySearchParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 import sample.repository.query.subject.SubjectResultUserMonthlyGetParam;
+import sample.repository.query.subject.SubjectResultUserMonthlySearchParam;
 
 /** 科目DAO */
 @Dao
@@ -77,6 +79,25 @@ public interface SubjectRepository {
      */
     @Select
     public List<SubjectResultMonthlySearch> searchMonthlySubjectResult(SubjectResultMonthlySearchParam param);
+
+    /**
+     * ユーザー別月次成績集計検索
+     * 
+     * @param param ユーザー別月次成績集計検索パラメータ
+     * @return ユーザー別月次成績集計リスト
+     */
+    @Select
+    public List<SubjectResultUserMonthlySearch> searchMonthlySubjectUserResult(
+            SubjectResultUserMonthlySearchParam param);
+
+    /**
+     * ユーザー別月次成績集計検索件数取得
+     * 
+     * @param param ユーザー別月次成績集計検索パラメータ
+     * @return ユーザー別月次成績集計件数
+     */
+    @Select
+    public int countMonthlySubjectUserResultSearch(SubjectResultUserMonthlySearchParam param);
 
     /**
      * 科目成績CSV取込登録

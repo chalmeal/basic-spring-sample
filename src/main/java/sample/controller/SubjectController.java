@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import sample.dto.request.subject.SubjectResultCsvImportRequest;
 import sample.dto.request.subject.SubjectResultMonthlySearchRequest;
 import sample.dto.request.subject.SubjectResultSearchRequest;
+import sample.dto.request.subject.SubjectResultUserMonthlySearchRequest;
 import sample.service.SubjectService;
 import sample.types.user.UserRoleType;
 import sample.utils.JwtUtils;
@@ -180,4 +181,33 @@ public class SubjectController {
         return ResponseEntity.ok().body(subjectService.searchMonthlySubjectResult(request));
     }
 
+    /**
+     * ユーザー別月次成績集計検索
+     * 
+     * @param userId     ユーザーID
+     * @param year       年
+     * @param month      月
+     * @param pageSize   ページサイズ
+     * @param pageNumber ページ番号
+     * @return ユーザー別月次成績集計リスト
+     */
+    @GetMapping("/result/monthly/user")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> searchSubjectResultUserMonthly(
+            @RequestParam(name = "user_id", required = false) String userId,
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "month", required = false) Integer month,
+            @RequestParam(name = "page_size", required = true, defaultValue = "30") Integer pageSize,
+            @RequestParam(name = "page_number", required = true, defaultValue = "1") Integer pageNumber) {
+        // 検索リクエストパラメータ
+        SubjectResultUserMonthlySearchRequest request = SubjectResultUserMonthlySearchRequest.builder()
+                .userId(userId)
+                .year(year)
+                .month(month)
+                .pageSize(pageSize)
+                .pageNumber(Pagination.pageNumberConvert(pageSize, pageNumber))
+                .build();
+
+        return ResponseEntity.ok().body(subjectService.searchMonthlySubjectUserResult(request));
+    }
 }

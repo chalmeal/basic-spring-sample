@@ -13,15 +13,18 @@ import lombok.RequiredArgsConstructor;
 import sample.dto.request.subject.SubjectResultCsvImportRequest;
 import sample.dto.request.subject.SubjectResultMonthlySearchRequest;
 import sample.dto.request.subject.SubjectResultSearchRequest;
+import sample.dto.request.subject.SubjectResultUserMonthlySearchRequest;
 import sample.dto.response.subject.SubjectFetchResponse;
 import sample.dto.response.subject.SubjectGetResponse;
 import sample.dto.response.subject.SubjectResultGetResponse;
 import sample.dto.response.subject.SubjectResultMonthlySearchResponse;
 import sample.dto.response.subject.SubjectResultSearchResponse;
+import sample.dto.response.subject.SubjectResultUserMonthlySearchResponse;
 import sample.entity.Subject;
 import sample.entity.SubjectResult;
 import sample.entity.SubjectResultMonthlySearch;
 import sample.entity.SubjectResultSearch;
+import sample.entity.SubjectResultUserMonthlySearch;
 import sample.entity.User;
 import sample.repository.SubjectRepository;
 import sample.repository.UserRepository;
@@ -30,6 +33,7 @@ import sample.repository.query.subject.SubjectResultMonthlyGetParam;
 import sample.repository.query.subject.SubjectResultMonthlySearchParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 import sample.repository.query.subject.SubjectResultUserMonthlyGetParam;
+import sample.repository.query.subject.SubjectResultUserMonthlySearchParam;
 import sample.utils.Pagination;
 import sample.utils.csv.CsvExportUtils;
 import sample.utils.csv.CsvImportUtils;
@@ -239,6 +243,33 @@ public class SubjectService {
 
         // 科目別月次成績集計登録
         subjectRepository.insertMonthlySubjectResult(param);
+    }
+
+    /**
+     * ユーザー別月次成績集計検索
+     * 
+     * @param request ユーザー別月次成績集計検索リクエスト
+     * @return ユーザー別月次成績集計リスト
+     */
+    @Transactional(readOnly = true)
+    public Pagination<SubjectResultUserMonthlySearchResponse> searchMonthlySubjectUserResult(
+            SubjectResultUserMonthlySearchRequest request) {
+        Pagination<SubjectResultUserMonthlySearchResponse> pagination = new Pagination<SubjectResultUserMonthlySearchResponse>();
+        // ユーザー別月次成績集計検索パラメータ設定
+        SubjectResultUserMonthlySearchParam param = SubjectResultUserMonthlySearchParam.builder()
+                .userId(request.getUserId())
+                .year(request.getYear())
+                .month(request.getMonth())
+                .build();
+        // 科目結果検索
+        List<SubjectResultUserMonthlySearch> result = subjectRepository.searchMonthlySubjectUserResult(param);
+        List<SubjectResultUserMonthlySearchResponse> response = new ArrayList<SubjectResultUserMonthlySearchResponse>();
+        for (SubjectResultUserMonthlySearch subjectResultUserMonthly : result) {
+            response.add(new SubjectResultUserMonthlySearchResponse(subjectResultUserMonthly));
+        }
+        int totalCount = subjectRepository.countMonthlySubjectUserResultSearch(param);
+
+        return pagination.paging(response, totalCount, request.getPageSize());
     }
 
     /**
