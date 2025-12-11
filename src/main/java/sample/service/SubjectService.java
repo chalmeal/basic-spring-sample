@@ -29,6 +29,7 @@ import sample.repository.query.subject.SubjectResultCsvImportParam;
 import sample.repository.query.subject.SubjectResultMonthlyGetParam;
 import sample.repository.query.subject.SubjectResultMonthlySearchParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
+import sample.repository.query.subject.SubjectResultUserMonthlyGetParam;
 import sample.utils.Pagination;
 import sample.utils.csv.CsvExportUtils;
 import sample.utils.csv.CsvImportUtils;
@@ -200,22 +201,6 @@ public class SubjectService {
     }
 
     /**
-     * 科目別月次成績集計
-     * 
-     * @param prevMonth 集計対象月の前月
-     */
-    @Transactional
-    public void aggregateMonthlySubjectResults(LocalDate prevMonth) {
-        // 科目別月次成績集計取得パラメータ設定
-        SubjectResultMonthlyGetParam param = SubjectResultMonthlyGetParam.builder()
-                .year(prevMonth.getYear())
-                .month(prevMonth.getMonthValue()).build();
-
-        // 科目別月次成績集計登録
-        subjectRepository.insertMonthlySubjectResult(param);
-    }
-
-    /**
      * 科目別月次成績集計検索
      * 
      * @param request 科目別月次成績集計検索リクエスト
@@ -238,5 +223,37 @@ public class SubjectService {
         }
 
         return response;
+    }
+
+    /**
+     * 科目別月次成績集計
+     * 
+     * @param prevMonth 集計対象月の前月
+     */
+    @Transactional
+    public void aggregateSubjectMonthlyResults(LocalDate prevMonth) {
+        // 科目別月次成績集計取得パラメータ設定
+        SubjectResultMonthlyGetParam param = SubjectResultMonthlyGetParam.builder()
+                .year(prevMonth.getYear())
+                .month(prevMonth.getMonthValue()).build();
+
+        // 科目別月次成績集計登録
+        subjectRepository.insertMonthlySubjectResult(param);
+    }
+
+    /**
+     * ユーザー別月次成績集計
+     * 
+     * @param prevMonth 集計対象月の前月
+     */
+    @Transactional
+    public void aggregateSubjectMonthlyUserResult(LocalDate prevMonth) {
+        // 科目別月次成績集計取得パラメータ設定
+        SubjectResultUserMonthlyGetParam param = SubjectResultUserMonthlyGetParam.builder()
+                .year(prevMonth.getYear())
+                .month(prevMonth.getMonthValue()).build();
+
+        // ユーザー別月次成績集計登録
+        subjectRepository.insertMonthlySubjectUserResult(param);
     }
 }

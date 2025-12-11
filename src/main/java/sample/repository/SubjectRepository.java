@@ -17,6 +17,7 @@ import sample.repository.query.subject.SubjectResultCsvImportParam;
 import sample.repository.query.subject.SubjectResultMonthlyGetParam;
 import sample.repository.query.subject.SubjectResultMonthlySearchParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
+import sample.repository.query.subject.SubjectResultUserMonthlyGetParam;
 
 /** 科目DAO */
 @Dao
@@ -94,5 +95,14 @@ public interface SubjectRepository {
      */
     @Insert(sqlFile = true)
     public int insertMonthlySubjectResult(SubjectResultMonthlyGetParam param);
+
+    /**
+     * ユーザー別月次成績集計登録
+     * 
+     * @param param 科目別月次成績集計取得クエリパラメータ
+     * @return 登録結果
+     */
+    @Insert(sqlFile = true)
+    public int insertMonthlySubjectUserResult(SubjectResultUserMonthlyGetParam param);
 
 }

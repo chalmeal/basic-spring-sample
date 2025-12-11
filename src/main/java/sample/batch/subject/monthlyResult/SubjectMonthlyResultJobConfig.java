@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 /** 科目別月次成績集計ジョブ設定 */
 @Configuration
 @RequiredArgsConstructor
-public class SubjectMonthlyJobConfig {
+public class SubjectMonthlyResultJobConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager tx;
     private final SubjectMonthlyResultTasklet tasklet;

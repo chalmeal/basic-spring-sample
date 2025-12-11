@@ -1,4 +1,4 @@
-package sample.batch.subject.monthlyResult;
+package sample.batch.subject.monthlyUserResult;
 
 import java.time.LocalDate;
 
@@ -11,20 +11,19 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import sample.service.SubjectService;
 
-/** 科目別月次成績集計Tasklet */
+/** ユーザー別月次成績集計Tasklet */
 @Component
 @RequiredArgsConstructor
-public class SubjectMonthlyResultTasklet implements Tasklet {
+public class SubjectMonthlyUserResultTasklet implements Tasklet {
     private final SubjectService subjectService;
 
-    /** 科目別月次成績集計実行 */
+    /** ユーザー別月次成績集計実行 */
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         // 前月の年月を取得
         LocalDate prevMonth = LocalDate.now().minusMonths(1);
-        subjectService.aggregateSubjectMonthlyResults(prevMonth);
+        subjectService.aggregateSubjectMonthlyUserResult(prevMonth);
 
         return RepeatStatus.FINISHED;
     }
-
 }

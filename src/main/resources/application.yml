@@ -75,3 +75,6 @@ batch:
       monthly-result:
         cron: "0 0 1 1 * *"  # 毎月1日午前0時
         enabled: true
+      monthly-user-result:
+        cron: "0 0 1 1 * *"  # 毎月1日午前0時
+        enabled: true
