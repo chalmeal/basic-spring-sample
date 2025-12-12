@@ -4,6 +4,10 @@ spring:
 
   security:
     user.password: unused
+    mfa:
+      passcode:
+        enabled: true
+        expiration: 5
   
   jwt:
     access-token:

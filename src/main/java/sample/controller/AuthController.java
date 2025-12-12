@@ -1,5 +1,6 @@
 package sample.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import sample.dto.request.auth.LoginPasscodeRequest;
 import sample.dto.request.auth.LoginRequest;
 import sample.dto.request.auth.PasswordChangeRequest;
 import sample.dto.request.auth.PasswordResetRequest;
@@ -23,6 +25,9 @@ public class AuthController {
     private final AuthService authService;
     /** セキュリティサービスDI */
     private final SecurityService securityService;
+    /** 二要素認証有効フラグ */
+    @Value("${spring.security.mfa.passcode.enabled}")
+    private boolean mfaEnabled;
 
     /**
      * ログイン処理
@@ -32,7 +37,24 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
+        if (mfaEnabled) {
+            // 二要素認証有効時はパスコード送信のみ実施
+            authService.sendPasscode(request);
+            return ResponseEntity.ok().build();
+        }
+
         return ResponseEntity.ok().body(authService.login(request));
+    }
+
+    /**
+     * パスコード認証処理
+     * 
+     * @param request パスコード認証リクエスト
+     * @return レスポンスエンティティ
+     */
+    @PostMapping("/login/passcode")
+    public ResponseEntity<?> loginPasscode(@RequestBody @Valid LoginPasscodeRequest request) {
+        return ResponseEntity.ok().body(authService.verifyPasscode(request));
     }
 
     /**

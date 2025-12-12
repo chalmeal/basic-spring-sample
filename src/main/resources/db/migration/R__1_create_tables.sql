@@ -16,6 +16,22 @@ CREATE TABLE IF NOT EXISTS users(
   , KEY idx_users (email, deleted_at)
 ) COMMENT='ユーザー';
 
+-- 多要素認証OTP管理テーブル
+CREATE TABLE IF NOT EXISTS mfa_passcode_info (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'ID'
+    ,user_id VARCHAR(50) NOT NULL COMMENT 'ユーザーID'
+    ,passcode CHAR(6) NOT NULL COMMENT 'パスコード'
+    ,expires_at DATETIME NOT NULL COMMENT '有効期限'
+    ,created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時'
+    ,updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日時'
+    ,CONSTRAINT fk_user_mfa_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+    ,UNIQUE KEY uq_user_mfa_active_passcode (user_id)
+    ,KEY idx_mfa_user (user_id)
+    ,KEY idx_mfa_code_lookup (passcode, expires_at)
+) COMMENT='多要素認証OTP';
+
 -- パスワードリセット用トークンテーブル
 CREATE TABLE IF NOT EXISTS password_reset_info (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'ID'

@@ -33,7 +33,7 @@ public class SecurityService {
     private final UserRepository userRepository;
     /** 認証リポジトリDI */
     private final AuthRepository authRepository;
-    /** メール送信ユーティリティDI */
+    /** メール送信ユーティリティDI */ // TODO: DIしない
     private final MailUtils mailUtils;
     /** パスワードリセットリンク */
     @Value("${spring.mail.properties.password-reset-link}")

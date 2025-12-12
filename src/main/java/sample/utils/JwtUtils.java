@@ -32,6 +32,7 @@ public class JwtUtils {
     }
 
     /**
+     * TODO: static化
      * JWTを生成する
      * 
      * @param claims クレーム
@@ -54,6 +55,7 @@ public class JwtUtils {
     }
 
     /**
+     * TODO: Serviceへ移動
      * アプリケーションのクレームを作成する
      * 
      * @param userId   ユーザーID

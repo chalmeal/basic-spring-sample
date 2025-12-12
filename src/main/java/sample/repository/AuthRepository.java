@@ -3,13 +3,16 @@ package sample.repository;
 import java.util.Optional;
 
 import org.seasar.doma.Dao;
+import org.seasar.doma.Delete;
 import org.seasar.doma.Insert;
 import org.seasar.doma.Select;
 import org.seasar.doma.Update;
 import org.seasar.doma.boot.ConfigAutowireable;
 import org.seasar.doma.jdbc.SqlLogType;
 
+import sample.entity.MFAPasscodeInfo;
 import sample.entity.PasswordResetInfo;
+import sample.repository.query.auth.MFAPasscodeInfoCreateParam;
 
 /** 認証DAO */
 @Dao
@@ -35,6 +38,15 @@ public interface AuthRepository {
     public String getHashPasswordByUserId(String userId);
 
     /**
+     * パスコードを取得（ユーザーID指定）
+     * 
+     * @param userId ユーザーID
+     * @return パスコード
+     */
+    @Select(sqlLog = SqlLogType.NONE)
+    public MFAPasscodeInfo getPasscodeByUserId(String userId);
+
+    /**
      * パスワードリセット情報をトークンで取得
      * 
      * @param token パスワードリセットトークン
@@ -42,6 +54,15 @@ public interface AuthRepository {
      */
     @Select(sqlLog = SqlLogType.NONE)
     public Optional<PasswordResetInfo> getPasswordResetInfoByToken(String token);
+
+    /**
+     * パスコードを保持
+     * 
+     * @param param パスコード作成パラメータ
+     * @return 登録結果
+     */
+    @Insert(sqlFile = true, sqlLog = SqlLogType.NONE)
+    public int createPasscode(MFAPasscodeInfoCreateParam param);
 
     /**
      * パスワードリセット情報を保持
@@ -82,5 +103,14 @@ public interface AuthRepository {
      */
     @Update(sqlFile = true, sqlLog = SqlLogType.NONE)
     public int updatePasswordResetInfoAsUsed(Long id);
+
+    /**
+     * パスコード情報を削除
+     * 
+     * @param userId ユーザーID
+     * @return 削除件数
+     */
+    @Delete(sqlFile = true, sqlLog = SqlLogType.NONE)
+    public int deletePasscodeInfo(String userId);
 
 }
