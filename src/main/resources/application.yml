@@ -6,7 +6,7 @@ spring:
     user.password: unused
     mfa:
       passcode:
-        enabled: true
+        enabled: false
         expiration: 5
   
   jwt:
