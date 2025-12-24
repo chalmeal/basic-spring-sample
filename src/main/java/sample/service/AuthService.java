@@ -2,7 +2,6 @@ package sample.service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,28 +16,41 @@ import sample.entity.User;
 import sample.repository.AuthRepository;
 import sample.repository.UserRepository;
 import sample.repository.query.auth.MFAPasscodeInfoCreateParam;
+import sample.service.helper.MailDeliver;
+import sample.service.security.JwtClaim;
+import sample.service.security.SecurityBaseService;
 import sample.types.user.UserRoleType;
-import sample.utils.JwtUtils;
-import sample.utils.MailUtils;
 import sample.utils.exception.UnAuthorizedException;
 
 /** 認証サービス */
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService extends SecurityBaseService {
     /** セキュリティサービスDI */
     private final SecurityService securityService;
     /** 認証リポジトリDI */
     private final AuthRepository authRepository;
     /** ユーザーリポジトリDI */
     private final UserRepository userRepository;
-    /** JWTユーティリティDI */ // TODO: DIしない
-    private final JwtUtils jwtUtils;
-    /** メール送信ユーティリティDI */ // TODO: DIしない
-    private final MailUtils mailUtils;
+    /** メール送信 */
+    private final MailDeliver mailDeliver;
     /** パスコード有効期間（分） */
     @Value("${spring.security.mfa.passcode.expiration}")
     private int PASSCODE_EXPIRATION_MINUTES;
+
+    /**
+     * JWTクレーム定義
+     * 
+     * @param user ユーザー情報
+     * @return JWTクレーム
+     */
+    private JwtClaim toJwtClaim(User user) {
+        return JwtClaim.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .role(UserRoleType.fromValue(user.getRole()))
+                .build();
+    }
 
     /**
      * ログイン処理
@@ -56,11 +68,8 @@ public class AuthService {
             throw new UnAuthorizedException("メールアドレスまたはパスワードが違います。");
         }
 
-        // TODO: アクセストークン発行処理の共通化
-        String role = UserRoleType.fromValue(user.getRole());
-        Map<String, Object> claims = jwtUtils.toClaims(
-                user.getUserId(), user.getUsername(), role);
-        String accessToken = jwtUtils.generateJwt(claims);
+        JwtClaim jwtClaim = this.toJwtClaim(user);
+        String accessToken = this.getAccessToken(jwtClaim);
 
         return new LoginResponse(accessToken);
     }
@@ -98,7 +107,7 @@ public class AuthService {
                 以下のパスコードを入力してください。パスコードの有効期間は発行から5分です。\n
                 %s
                 """, passcodeStr);
-        mailUtils.sendMail(MailUtils.MailSenderObject.builder()
+        mailDeliver.send(MailDeliver.MailDeliverObject.builder()
                 .to(request.getEmail())
                 .subject("ログインパスコードのお知らせ")
                 .body(body)
@@ -130,11 +139,8 @@ public class AuthService {
         // パスコード情報を削除
         authRepository.deletePasscodeInfo(user.getUserId());
 
-        // TODO: アクセストークン発行処理の共通化
-        String role = UserRoleType.fromValue(user.getRole());
-        Map<String, Object> claims = jwtUtils.toClaims(
-                user.getUserId(), user.getUsername(), role);
-        String accessToken = jwtUtils.generateJwt(claims);
+        JwtClaim jwtClaim = this.toJwtClaim(user);
+        String accessToken = this.getAccessToken(jwtClaim);
 
         return new LoginResponse(accessToken);
     }

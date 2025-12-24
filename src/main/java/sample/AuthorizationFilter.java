@@ -1,8 +1,12 @@
 package sample;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,14 +25,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import sample.dto.response.ErrorResponse;
-import sample.utils.JwtUtils;
 import sample.utils.exception.JwtException;
 
 /** 認証認可フィルター設定 */
 @Component
 @RequiredArgsConstructor
 public class AuthorizationFilter implements Filter {
-    private final JwtUtils jwtUtils;
+    /** アクセストークンシークレットキー */
+    @Value("${spring.jwt.access-token.secret}")
+    private String accessTokenSecret;
+
+    // アクセストークンシークレットキー取得
+    private SecretKey getAccessTokenSecretKey() {
+        return Keys.hmacShaKeyFor(accessTokenSecret.getBytes(StandardCharsets.UTF_8));
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
@@ -40,8 +52,13 @@ public class AuthorizationFilter implements Filter {
                 return;
             }
 
+            // トークンを解析してクレームを取得
             String token = authorizationHeader.replace("Bearer ", "");
-            Claims claims = jwtUtils.parseClaims(token);
+            Claims claims = Jwts.parser()
+                    .verifyWith(this.getAccessTokenSecretKey()) // 署名検証
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
 
             // クレームからユーザー情報を取得
             String userId = claims.get("userId", String.class);

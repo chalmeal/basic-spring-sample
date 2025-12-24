@@ -1,4 +1,4 @@
-package sample.utils;
+package sample.service.helper;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -13,15 +13,15 @@ import lombok.RequiredArgsConstructor;
 /** メール送信ユーティリティ */
 @Component
 @RequiredArgsConstructor
-public class MailUtils {
+public class MailDeliver {
     /** メール送信DI */
-    private final JavaMailSender mailSender;
+    private JavaMailSender mailSender;
     /** 送信元メールアドレス */
     @Value("${spring.mail.properties.from}")
     private String from;
 
     @Builder
-    public record MailSenderObject(String to, String subject, String body) {
+    public record MailDeliverObject(String to, String subject, String body) {
     }
 
     /**
@@ -29,7 +29,7 @@ public class MailUtils {
      * 
      * @param obj メール送信オブジェクト
      */
-    public void sendMail(MailSenderObject obj) throws MailException {
+    public void send(MailDeliverObject obj) throws MailException {
         SimpleMailMessage message = new SimpleMailMessage();
         try {
             message.setFrom(from);

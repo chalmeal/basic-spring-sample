@@ -24,8 +24,8 @@ import sample.dto.response.user.UserSearchResponse;
 import sample.service.SecurityService;
 import sample.service.UserService;
 import sample.types.user.UserRoleType;
-import sample.utils.JwtUtils;
 import sample.utils.Pagination;
+import sample.utils.SecurityUtils;
 
 /** ユーザーコントローラ */
 @RestController
@@ -47,8 +47,8 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getByUserid(@PathVariable("user_id") String userId) {
         // 一般ユーザーの場合は自分のユーザー情報のみ取得可能
-        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
-                && !userId.equals(JwtUtils.getClaimValue("userId"))) {
+        if (SecurityUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !userId.equals(SecurityUtils.getClaimValue("userId"))) {
             throw new AccessDeniedException("別ユーザーのユーザー情報は取得できません。");
         }
         return ResponseEntity.ok().body(userService.getByUserId(userId));
@@ -122,7 +122,7 @@ public class UserController {
     @PostMapping("/password/change")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordChangeLoginAfterRequest request) {
-        String userId = JwtUtils.getClaimValue("userId");
+        String userId = SecurityUtils.getClaimValue("userId");
         securityService.changePassword(request, userId);
         return ResponseEntity.ok().build();
     }

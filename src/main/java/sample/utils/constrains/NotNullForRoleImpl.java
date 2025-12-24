@@ -5,7 +5,7 @@ import java.util.Arrays;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import sample.types.user.UserRoleType;
-import sample.utils.JwtUtils;
+import sample.utils.SecurityUtils;
 
 /** 対象権限必須バリデーション実装 */
 public class NotNullForRoleImpl implements ConstraintValidator<NotNullForRole, String> {
@@ -23,7 +23,7 @@ public class NotNullForRoleImpl implements ConstraintValidator<NotNullForRole, S
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         // ユーザーの権限を取得
-        String currentRole = JwtUtils.getClaimValue("role");
+        String currentRole = SecurityUtils.getClaimValue("role");
 
         // 対象権限でなければバリデーション対象外
         boolean shouldValidate = Arrays.stream(roles)

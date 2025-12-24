@@ -15,8 +15,8 @@ public class SubjectResultGetResponse {
     /** ID */
     private Long id;
 
-    /** ユーザーテーブルID */
-    private Long usersId;
+    /** ユーザーID */
+    private String userId;
 
     /** 科目ID */
     private Long subjectId;
@@ -35,7 +35,7 @@ public class SubjectResultGetResponse {
 
     public SubjectResultGetResponse(SubjectResult subjectResult) {
         this.id = subjectResult.getId();
-        this.usersId = subjectResult.getUsersId();
+        this.userId = subjectResult.getUserId();
         this.subjectId = subjectResult.getSubjectId();
         this.score = subjectResult.getScore();
         this.createdAt = subjectResult.getCreatedAt();

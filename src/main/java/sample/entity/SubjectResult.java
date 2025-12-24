@@ -22,7 +22,7 @@ public class SubjectResult {
     private Long id;
 
     /** ユーザーテーブルID */
-    private Long usersId;
+    private String userId;
 
     /** 科目ID */
     private Long subjectId;

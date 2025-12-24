@@ -1,10 +1,6 @@
 package sample.service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,8 +15,9 @@ import sample.entity.PasswordResetInfo;
 import sample.entity.User;
 import sample.repository.AuthRepository;
 import sample.repository.UserRepository;
+import sample.service.helper.MailDeliver;
+import sample.service.security.SecurityBaseService;
 import sample.utils.DateUtils;
-import sample.utils.MailUtils;
 import sample.utils.exception.BadRequestException;
 import sample.utils.exception.UnAuthorizedException;
 
@@ -28,13 +25,13 @@ import sample.utils.exception.UnAuthorizedException;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SecurityService {
+public class SecurityService extends SecurityBaseService {
     /** ユーザーリポジトリDI */
     private final UserRepository userRepository;
     /** 認証リポジトリDI */
     private final AuthRepository authRepository;
-    /** メール送信ユーティリティDI */ // TODO: DIしない
-    private final MailUtils mailUtils;
+    /** メール送信 */
+    private final MailDeliver mailDeliver;
     /** パスワードリセットリンク */
     @Value("${spring.mail.properties.password-reset-link}")
     private String resetLink;
@@ -61,7 +58,7 @@ public class SecurityService {
                 下記のリンクから新しいパスワードを設定してください。\n
                 %s?token=%s
                 """, resetLink, token);
-        mailUtils.sendMail(MailUtils.MailSenderObject.builder()
+        mailDeliver.send(MailDeliver.MailDeliverObject.builder()
                 .to(email)
                 .subject("パスワードリセットのお知らせ")
                 .body(body)
@@ -117,37 +114,6 @@ public class SecurityService {
         // パスワード更新
         String newPassword = hashPassword(request.getNewPassword());
         authRepository.updatePasswordByUserId(userId, newPassword);
-    }
-
-    /**
-     * パスワードをハッシュ化(SHA-512)
-     * 
-     * @param password ハッシュ化するパスワード
-     * @return ハッシュ化されたパスワード
-     */
-    public String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            byte[] bytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(bytes);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-512 algorithm not available", e);
-        }
-    }
-
-    /**
-     * パスワードの検証
-     * 
-     * @param loginPassword  ログイン時に入力されたパスワード
-     * @param hashedPassword DBに保存されているハッシュ化されたパスワード
-     * @return パスワードが一致する場合はtrue、それ以外はfalse
-     */
-    public boolean verifyPassword(String loginPassword, String hashedPassword) {
-        String loginHashPassword = hashPassword(loginPassword);
-
-        return MessageDigest.isEqual(
-                loginHashPassword.getBytes(StandardCharsets.UTF_8),
-                hashedPassword.getBytes(StandardCharsets.UTF_8));
     }
 
 }

@@ -20,9 +20,9 @@ import sample.repository.UserRepository;
 import sample.repository.query.user.UserRegisterParam;
 import sample.repository.query.user.UserRegisterTemporaryParam;
 import sample.repository.query.user.UserSearchParam;
+import sample.service.helper.MailDeliver;
 import sample.types.user.UserRoleType;
 import sample.types.user.UserStatusType;
-import sample.utils.MailUtils;
 import sample.utils.Pagination;
 import sample.utils.exception.NotFoundException;
 import sample.utils.exception.ResourceExistsException;
@@ -33,11 +33,11 @@ import sample.utils.exception.ResourceExistsException;
 @Slf4j
 public class UserService {
     /** パスワードハッシュサービスDI */
-    private final SecurityService passwordHashService;
+    private final SecurityService securityService;
     /** ユーザーリポジトリDI */
     private final UserRepository userRepository;
-    /** メール送信ユーティリティDI */
-    private final MailUtils mailUtils;
+    /** メール送信 */
+    private final MailDeliver mailDeliver;
     /** 登録リンク */
     @Value("${spring.mail.properties.register-link}")
     private String registerLink;
@@ -109,7 +109,7 @@ public class UserService {
                         \n
                         %s
                     """, registerLink);
-            mailUtils.sendMail(MailUtils.MailSenderObject.builder()
+            mailDeliver.send(MailDeliver.MailDeliverObject.builder()
                     .to(request.getEmail())
                     .subject("仮登録完了のお知らせ")
                     .body(mailBody)
@@ -133,7 +133,7 @@ public class UserService {
                     .id(id)
                     .userId(request.getUserId())
                     .username(request.getUsername())
-                    .password(passwordHashService.hashPassword(request.getPassword()))
+                    .password(securityService.hashPassword(request.getPassword()))
                     .role(UserRoleType.USER.getValue())
                     .status(UserStatusType.REGISTERED.getValue())
                     .build();

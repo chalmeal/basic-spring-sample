@@ -22,8 +22,8 @@ import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.dto.request.subject.SubjectResultUserMonthlySearchRequest;
 import sample.service.SubjectService;
 import sample.types.user.UserRoleType;
-import sample.utils.JwtUtils;
 import sample.utils.Pagination;
+import sample.utils.SecurityUtils;
 import sample.utils.constrains.NotNullForRole;
 import sample.utils.csv.CsvExportUtils;
 
@@ -67,9 +67,9 @@ public class SubjectController {
     @GetMapping("/result/{subject_result_id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getSubjectResultById(@PathVariable("subject_result_id") Long subjectResultId) {
-        String userId = JwtUtils.getClaimValue("userId");
+        String userId = SecurityUtils.getClaimValue("userId");
         // 管理者の場合は全ユーザーの科目結果取得可のため、ユーザーIDをnullに設定
-        if (JwtUtils.getClaimValue("role").equals(UserRoleType.ADMIN.getRoleName())) {
+        if (SecurityUtils.getClaimValue("role").equals(UserRoleType.ADMIN.getRoleName())) {
             userId = null;
         }
 
@@ -98,8 +98,8 @@ public class SubjectController {
             @RequestParam(name = "page_size", required = true, defaultValue = "30") Integer pageSize,
             @RequestParam(name = "page_number", required = true, defaultValue = "1") Integer pageNumber) {
         // 一般ユーザーの場合は自分の科目結果のみ取得可能
-        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
-                && !userId.equals(JwtUtils.getClaimValue("userId"))) {
+        if (SecurityUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !userId.equals(SecurityUtils.getClaimValue("userId"))) {
             throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
         }
         // 検索リクエストパラメータ
@@ -125,8 +125,8 @@ public class SubjectController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> exportSubjectResultsToCsv(@RequestBody @Valid SubjectResultSearchRequest request) {
         // 一般ユーザーの場合は自分の科目結果のみ取得可能
-        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
-                && !request.getUserId().equals(JwtUtils.getClaimValue("userId"))) {
+        if (SecurityUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !request.getUserId().equals(SecurityUtils.getClaimValue("userId"))) {
             throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
         }
         request.setPageNumber(Pagination.pageNumberConvert(request.getPageSize(), request.getPageNumber()));
@@ -148,8 +148,8 @@ public class SubjectController {
             @PathVariable("user_id") String userId,
             @Valid @ModelAttribute SubjectResultCsvImportRequest request) {
         // 一般ユーザーの場合は自分の科目結果のみ取得可能
-        if (JwtUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
-                && !userId.equals(JwtUtils.getClaimValue("userId"))) {
+        if (SecurityUtils.getClaimValue("role").equals(UserRoleType.USER.getRoleName())
+                && !userId.equals(SecurityUtils.getClaimValue("userId"))) {
             throw new AccessDeniedException("別ユーザーの科目結果は取得できません。");
         }
         subjectService.importSubjectResultsFromCsv(userId, request);
