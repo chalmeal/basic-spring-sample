@@ -27,4 +27,23 @@ public class SecurityUtils {
         return claims.get(key, String.class);
     }
 
+    /**
+     * JWTからクレームの値を取得する（存在しない場合はnullを返す）
+     * 
+     * @param key クレームのキー
+     * @return クレームの値またはnull
+     */
+    public static String getClaimValueOrNull(String key) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return null;
+        }
+        Claims claims = (Claims) auth.getDetails();
+        if (claims == null || !claims.containsKey(key)) {
+            return null;
+        }
+
+        return claims.get(key, String.class);
+    }
+
 }

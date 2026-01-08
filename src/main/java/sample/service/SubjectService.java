@@ -14,6 +14,7 @@ import sample.dto.request.subject.SubjectResultCsvImportRequest;
 import sample.dto.request.subject.SubjectResultMonthlySearchRequest;
 import sample.dto.request.subject.SubjectResultSearchRequest;
 import sample.dto.request.subject.SubjectResultUserMonthlySearchRequest;
+import sample.dto.response.SuccessResponse;
 import sample.dto.response.subject.SubjectFetchResponse;
 import sample.dto.response.subject.SubjectGetResponse;
 import sample.dto.response.subject.SubjectResultGetResponse;
@@ -34,10 +35,12 @@ import sample.repository.query.subject.SubjectResultMonthlySearchParam;
 import sample.repository.query.subject.SubjectResultSearchParam;
 import sample.repository.query.subject.SubjectResultUserMonthlyGetParam;
 import sample.repository.query.subject.SubjectResultUserMonthlySearchParam;
+import sample.types.log.LogExecType;
 import sample.utils.Pagination;
 import sample.utils.csv.CsvExportUtils;
 import sample.utils.csv.CsvImportUtils;
 import sample.utils.exception.NotFoundException;
+import sample.utils.logger.Logger.Loggable;
 
 /** 科目サービス */
 @Service
@@ -283,8 +286,8 @@ public class SubjectService {
      * 
      * @param prevMonth 集計対象月の前月
      */
-    @Transactional
-    public void aggregateSubjectMonthlyUserResult(LocalDate prevMonth) {
+    @Loggable(value = "AggregateSubjectMonthlyUserResult", execType = LogExecType.BATCH)
+    public SuccessResponse aggregateSubjectMonthlyUserResult(LocalDate prevMonth) {
         // 科目別月次成績集計取得パラメータ設定
         SubjectResultUserMonthlyGetParam param = SubjectResultUserMonthlyGetParam.builder()
                 .year(prevMonth.getYear())
@@ -292,5 +295,9 @@ public class SubjectService {
 
         // ユーザー別月次成績集計登録
         subjectRepository.insertMonthlySubjectUserResult(param);
+
+        String target = String.format("%d年%02d月", prevMonth.getYear(), prevMonth.getMonthValue());
+
+        return new SuccessResponse("ユーザー別月次成績集計が完了しました。", target);
     }
 }

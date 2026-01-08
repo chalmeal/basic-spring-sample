@@ -1,3 +1,17 @@
+-- ログテーブル
+CREATE TABLE IF NOT EXISTS logs (
+  id BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID'
+  , executor_id VARCHAR(50) NOT NULL COMMENT '実行者ID'
+  , process_name VARCHAR(100) NOT NULL COMMENT '処理名'
+  , exec_type INT NOT NULL COMMENT '実行種別'
+  , result INT NOT NULL COMMENT '処理結果'
+  , message TEXT COMMENT 'メッセージ'
+  , started_at DATETIME NOT NULL COMMENT '開始日時'
+  , completed_at DATETIME COMMENT '終了日時'
+  , PRIMARY KEY (id)
+  , KEY idx_logs_completed_at (completed_at)
+) COMMENT='ログ';
+
 -- ユーザーテーブル
 CREATE TABLE IF NOT EXISTS users(
   id BIGINT unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID'
